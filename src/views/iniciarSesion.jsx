@@ -38,7 +38,7 @@ import {
 // core components
 import DemoNavbar from "components/Navbars/DemoNavbar.jsx";
 
-class CrearCuenta extends React.Component {
+class IniciarSesion extends React.Component {
   componentDidMount() {
     document.documentElement.scrollTop = 0;
     document.scrollingElement.scrollTop = 0;
@@ -66,45 +66,11 @@ class CrearCuenta extends React.Component {
                   <Card className="bg-secondary shadow border-0">
                     <CardHeader className="bg-white pb-2">
                       <div className="text-muted text-center mb-3">
-                        <h3>REGISTRARSE</h3>
+                        <h3>INICIAR SESIÓN</h3>
                       </div>
                     </CardHeader>
                     <CardBody className="px-lg-5 py-lg-5">
                       <Form role="form">
-                        {/* Nombre */}
-                        <FormGroup>
-                          <InputGroup className="input-group-alternative mb-3">
-                            <InputGroupAddon addonType="prepend">
-                              <InputGroupText>
-                                <i className="ni ni-single-02" />
-                              </InputGroupText>
-                            </InputGroupAddon>
-                            <Input
-                              placeholder="Nombre"
-                              type="text"
-                              name="nombre"
-                              required
-                            />
-                          </InputGroup>
-                        </FormGroup>
-                        {/* /Nombre */}
-                        {/* Apellido */}
-                        <FormGroup>
-                          <InputGroup className="input-group-alternative mb-3">
-                            <InputGroupAddon addonType="prepend">
-                              <InputGroupText>
-                                <i className="ni ni-single-02" />
-                              </InputGroupText>
-                            </InputGroupAddon>
-                            <Input
-                              placeholder="Apellido"
-                              type="text"
-                              name="apellido"
-                              required
-                            />
-                          </InputGroup>
-                        </FormGroup>
-                        {/* /Apellido */}
                         {/* Email */}
                         <FormGroup>
                           <InputGroup className="input-group-alternative mb-3">
@@ -140,31 +106,6 @@ class CrearCuenta extends React.Component {
                           </InputGroup>
                         </FormGroup>
                         {/* /Password */}
-                        {/* Confirm Password */}
-                        <FormGroup>
-                          <InputGroup className="input-group-alternative">
-                            <InputGroupAddon addonType="prepend">
-                              <InputGroupText>
-                                <i className="ni ni-lock-circle-open" />
-                              </InputGroupText>
-                            </InputGroupAddon>
-                            <Input
-                              placeholder="Confirmar contraseña"
-                              type="password"
-                              autoComplete="off"
-                              required
-                            />
-                          </InputGroup>
-                        </FormGroup>
-                        {/* /Confirm Password */}
-
-                        {/* Imagen */}
-                        <FormGroup>
-                          <InputGroup className="input-group-alternative">
-                            <Input type="file" name="imagen" id="exampleFile" />
-                          </InputGroup>
-                        </FormGroup>
-                        {/* /Imagen */}
 
                         {/* Botón Registrarse */}
                         <div className="text-center">
@@ -173,7 +114,7 @@ class CrearCuenta extends React.Component {
                             color="primary"
                             type="submit"
                           >
-                            Crear cuenta
+                            Ingresar
                           </Button>
                         </div>
                       </Form>
@@ -181,9 +122,14 @@ class CrearCuenta extends React.Component {
                   </Card>
 
                   <Row className="mt-3">
-                    <Col className="text-light text-center" xs="12">
+                    <Col className="text-light" xs="6">
                       <Link to="/">
-                        <small>Iniciar sesión</small>
+                        <small>Olvidé mi contraseña</small>
+                      </Link>
+                    </Col>
+                    <Col className="text-right text-light" xs="6">
+                      <Link to="/crearCuenta">
+                        <small>Crear cuenta</small>
                       </Link>
                     </Col>
                   </Row>
@@ -197,4 +143,4 @@ class CrearCuenta extends React.Component {
   }
 }
 
-export default CrearCuenta;
+export default IniciarSesion;

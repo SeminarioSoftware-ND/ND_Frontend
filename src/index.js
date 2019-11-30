@@ -25,12 +25,13 @@ import "assets/scss/argon-design-system-react.scss";
 
 import Index from "views/Index.jsx";
 import Landing from "views/examples/Landing.jsx";
-import Login from "views/examples/Login.jsx";
+// import Login from "views/examples/Login.jsx";
 import Profile from "views/examples/Profile.jsx";
 // import Register from "views/examples/Register.jsx";
 
 // Imports propios
 import CrearCuenta from "views/crearCuenta.jsx";
+import IniciarSesion from "views/iniciarSesion";
 
 ReactDOM.render(
   <BrowserRouter>
@@ -41,12 +42,19 @@ ReactDOM.render(
         exact
         render={props => <Landing {...props} />}
       />
-      <Route path="/login-page" exact render={props => <Login {...props} />} />
+
       <Route
         path="/profile-page"
         exact
         render={props => <Profile {...props} />}
       />
+
+      <Route
+        path="/iniciarSesion"
+        exact
+        render={props => <IniciarSesion {...props} />}
+      />
+
       <Route
         path="/crearCuenta"
         exact
