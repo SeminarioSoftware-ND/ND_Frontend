@@ -27,7 +27,10 @@ import Index from "views/Index.jsx";
 import Landing from "views/examples/Landing.jsx";
 import Login from "views/examples/Login.jsx";
 import Profile from "views/examples/Profile.jsx";
-import Register from "views/examples/Register.jsx";
+// import Register from "views/examples/Register.jsx";
+
+// Imports propios
+import CrearCuenta from "views/crearCuenta.jsx";
 
 ReactDOM.render(
   <BrowserRouter>
@@ -45,9 +48,9 @@ ReactDOM.render(
         render={props => <Profile {...props} />}
       />
       <Route
-        path="/register-page"
+        path="/crearCuenta"
         exact
-        render={props => <Register {...props} />}
+        render={props => <CrearCuenta {...props} />}
       />
       <Redirect to="/" />
     </Switch>
