@@ -114,15 +114,15 @@ class Modals extends React.Component {
               className="mb-3"
               color="warning"
               type="button"
-              onClick={() => this.toggleModal("notificationModal")}
+              onClick={() => this.toggleModal("notification")}
             >
               Notification
             </Button>
             <Modal
               className="modal-dialog-centered modal-danger"
               contentClassName="bg-gradient-danger"
-              isOpen={this.state.notificationModal}
-              toggle={() => this.toggleModal("notificationModal")}
+              isOpen={this.state.notification}
+              toggle={() => this.toggleModal("notification")}
             >
               <div className="modal-header">
                 <h6 className="modal-title" id="modal-title-notification">
@@ -133,7 +133,7 @@ class Modals extends React.Component {
                   className="close"
                   data-dismiss="modal"
                   type="button"
-                  onClick={() => this.toggleModal("notificationModal")}
+                  onClick={() => this.toggleModal("notification")}
                 >
                   <span aria-hidden={true}>×</span>
                 </button>
@@ -157,7 +157,7 @@ class Modals extends React.Component {
                   color="link"
                   data-dismiss="modal"
                   type="button"
-                  onClick={() => this.toggleModal("notificationModal")}
+                  onClick={() => this.toggleModal("notification")}
                 >
                   Close
                 </Button>
