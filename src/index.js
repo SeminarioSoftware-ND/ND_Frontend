@@ -34,6 +34,7 @@ import CrearCuenta from "views/crearCuenta.jsx";
 import IniciarSesion from "views/iniciarSesion.jsx";
 import IndexDash from "views/indexDash.jsx";
 import DashCategorias from "views/DashCategorias.jsx";
+import DashProductos from "views/DashProductos.jsx";
 
 ReactDOM.render(
   <BrowserRouter>
@@ -53,10 +54,17 @@ ReactDOM.render(
       {/* RUTAS CREADAS */}
 
       <Route path="/admin" exact render={props => <IndexDash {...props} />} />
+
       <Route
         path="/admin/categorias"
         exact
         render={props => <DashCategorias {...props} />}
+      />
+
+      <Route
+        path="/admin/productos"
+        exact
+        render={props => <DashProductos {...props} />}
       />
 
       <Route

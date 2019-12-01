@@ -5,6 +5,7 @@ import { Button, Container, Row, Col } from "reactstrap";
 
 class DashHero extends React.Component {
   render() {
+    const laImagen = this.props.imagen;
     return (
       <>
         <div className="position-relative">
@@ -27,14 +28,16 @@ class DashHero extends React.Component {
               <div className="col px-0">
                 <Row className="align-items-center justify-content-center">
                   <Col className="text-center" lg="6">
-                    <img
-                      alt="..."
-                      className="img-fluid"
-                      src={require("assets/img/Logo Blanco ND.png")}
-                    />
-                    <h1 className="lead text-white">
-                      ¡BIENVENIDO AL PANEL DE ADMINISTRACIÓN!
-                    </h1>
+                    {this.props.imagen ? ( // if has image
+                      <img
+                        className="img-fluid"
+                        src={require(`assets/img/${this.props.imagen}`)}
+                      />
+                    ) : (
+                      <br />
+                    ) // otherwise return other element
+                    }
+                    <h1 className="lead text-white">{this.props.mensaje}</h1>
                     <div className="btn-wrapper mt-5"></div>
                   </Col>
                 </Row>

@@ -102,7 +102,7 @@ class DashNavbar extends React.Component {
 
                   {/* Productos */}
                   <UncontrolledDropdown nav>
-                    <DropdownToggle nav to="/admin" tag={Link}>
+                    <DropdownToggle nav to="/admin/productos" tag={Link}>
                       <i className="ni ni-bag-17 d-lg-none mr-1" />
                       <span className="nav-link-inner--text">Productos</span>
                     </DropdownToggle>
