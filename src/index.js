@@ -31,7 +31,8 @@ import Profile from "views/examples/Profile.jsx";
 
 // Imports propios
 import CrearCuenta from "views/crearCuenta.jsx";
-import IniciarSesion from "views/iniciarSesion";
+import IniciarSesion from "views/iniciarSesion.jsx";
+import IndexDash from "views/indexDash.jsx";
 
 ReactDOM.render(
   <BrowserRouter>
@@ -48,6 +49,9 @@ ReactDOM.render(
         exact
         render={props => <Profile {...props} />}
       />
+      {/* RUTAS CREADAS */}
+
+      <Route path="/admin" exact render={props => <IndexDash {...props} />} />
 
       <Route
         path="/iniciarSesion"
