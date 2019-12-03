@@ -17,6 +17,8 @@
 */
 import React from "react";
 import { Link } from "react-router-dom";
+import axios from "axios";
+import Swal from "sweetalert2";
 
 // reactstrap components
 import {
@@ -38,12 +40,36 @@ import {
 // core components
 import DemoNavbar from "components/Navbars/DemoNavbar.jsx";
 
+const url = "http://b8502f64.ngrok.io";
+
 class CrearCuenta extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      nombre: "",
+      apellido: "",
+      correo: "",
+      password: ""
+    };
+    this.agregarUsuario = this.agregarUsuario.bind(this);
+    this.handleChange = this.handleChange.bind(this);
+  }
   componentDidMount() {
     document.documentElement.scrollTop = 0;
     document.scrollingElement.scrollTop = 0;
     this.refs.main.scrollTop = 0;
   }
+
+  // Evento para atrapar el cambio en los inputs
+  handleChange(e) {
+    // Obtenemos por destructuring lo que está en los Inputs
+    const { name, value } = e.target;
+    // Actualizamos su estado
+    this.setState({
+      [name]: value
+    });
+  }
+
   render() {
     return (
       <>
@@ -70,7 +96,7 @@ class CrearCuenta extends React.Component {
                       </div>
                     </CardHeader>
                     <CardBody className="px-lg-5 py-lg-5">
-                      <Form role="form">
+                      <Form onSubmit={this.agregarUsuario}>
                         {/* Nombre */}
                         <FormGroup>
                           <InputGroup className="input-group-alternative mb-3">
@@ -80,10 +106,11 @@ class CrearCuenta extends React.Component {
                               </InputGroupText>
                             </InputGroupAddon>
                             <Input
+                              id="nombre"
                               placeholder="Nombre"
                               type="text"
                               name="nombre"
-                              required
+                              onChange={this.handleChange}
                             />
                           </InputGroup>
                         </FormGroup>
@@ -97,10 +124,11 @@ class CrearCuenta extends React.Component {
                               </InputGroupText>
                             </InputGroupAddon>
                             <Input
+                              id="apellido"
                               placeholder="Apellido"
                               type="text"
                               name="apellido"
-                              required
+                              onChange={this.handleChange}
                             />
                           </InputGroup>
                         </FormGroup>
@@ -114,10 +142,11 @@ class CrearCuenta extends React.Component {
                               </InputGroupText>
                             </InputGroupAddon>
                             <Input
+                              id="correo"
                               placeholder="Correo electrónico"
                               type="email"
                               name="correo"
-                              required
+                              onChange={this.handleChange}
                             />
                           </InputGroup>
                         </FormGroup>
@@ -131,11 +160,12 @@ class CrearCuenta extends React.Component {
                               </InputGroupText>
                             </InputGroupAddon>
                             <Input
-                              placeholder="Contraseña"
+                              id="password"
+                              placeholder="Contraseñ"
                               type="password"
                               autoComplete="off"
                               name="password"
-                              required
+                              onChange={this.handleChange}
                             />
                           </InputGroup>
                         </FormGroup>
@@ -152,7 +182,7 @@ class CrearCuenta extends React.Component {
                               placeholder="Confirmar contraseña"
                               type="password"
                               autoComplete="off"
-                              required
+                              onChange={this.handleChange}
                             />
                           </InputGroup>
                         </FormGroup>
@@ -172,6 +202,7 @@ class CrearCuenta extends React.Component {
                             className="mt-4"
                             color="primary"
                             type="submit"
+                            // onClick={() => this.Guardar()}
                           >
                             Crear cuenta
                           </Button>
@@ -194,6 +225,33 @@ class CrearCuenta extends React.Component {
         </main>
       </>
     );
+  }
+
+  /* --------------Zona de peticiones y eventos con axios ----> API(NDA_API)--------------- */
+  // Evento para agregar un usuario
+  agregarUsuario(e) {
+    console.log(this.state);
+    e.preventDefault();
+
+    // Obtenemos los datos
+    let datos = {
+      nombre: this.state.nombre,
+      apellido: this.state.apellido,
+      correo: this.state.correo,
+      password: this.state.password
+    };
+
+    // Realizamos la petición
+    axios
+      .post(`${url}/usuarios`, datos)
+      .then(respuesta => {
+        if (respuesta.status === 200) {
+          Swal.fire("¡Agregado!", respuesta.data.mensaje, "success");
+        }
+      })
+      .catch(error => {
+        Swal.fire("¡Alerta!", error.response.data.mensaje, "warning");
+      });
   }
 }
 
