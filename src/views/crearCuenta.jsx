@@ -86,70 +86,82 @@ class CrearCuenta extends React.Component {
     // console.log("En el botón agregar " + this.state);
     e.preventDefault();
 
-    const data = new FormData();
-    data.append("file", this.state.selectedFile, this.state.selectedFile.name);
+    // Si el usuario si selecciona una imagen
+    if (this.state.selectedFile !== null) {
+      // Creamos una variable para recoger la imagen
+      const data = new FormData();
+      data.append(
+        "file",
+        this.state.selectedFile,
+        this.state.selectedFile.name
+      );
 
-    // Obtenemos los datos
+      // Realizamos la petición para la imagen
+      axios
+        .post(`${url}/usuarioImagen`, data)
+        .then(respuesta => {
+          // Si se sube la imagen, almacenamos el usuario
+          if (respuesta.status === 200) {
+            // Creamos nuestro JSON para insertar todos los datos
+            let datos = {
+              nombre: this.state.nombre,
+              apellido: this.state.apellido,
+              correo: this.state.correo,
+              password: this.state.password,
+              imagen: respuesta.data.imagen
+            };
 
-    console.log(this.state.selectedFile);
+            // Realiazmos la petición de almacenar usuario
+            axios
+              .post(`${url}/usuarios`, datos)
+              .then(respuesta2 => {
+                // Si se almacenaron los datos
+                if (respuesta2.status === 200) {
+                  Swal.fire("!Agregado¡", respuesta2.data.mensaje, "success");
+                } else {
+                  Swal.fire(
+                    "¡Alerta!",
+                    respuesta2.response.data.mensaje,
+                    "warning"
+                  );
+                }
+              })
+              // Error de ingresar usuario
+              .catch(error => {
+                Swal.fire("¡Alerta!", error.response.data.mensaje, "warning");
+              });
+          }
+        })
+        // Error de imagen
+        .catch(error => {
+          Swal.fire("¡Alerta!", error.response.data.mensaje, "warning");
+        });
+    }
+    // Si no se seleccionó imagen
+    else {
+      // Creamos JSON para enviar los datos
+      let datos = {
+        nombre: this.state.nombre,
+        apellido: this.state.apellido,
+        correo: this.state.correo,
+        password: this.state.password
+      };
 
-    // Realizamos la petición para imagen
-    axios
-      .post(`${url}/usuarioImagen`, data)
-      .then(respuesta => {
-        // Si se sube la imagen, almacenamos el usuario
-        if (respuesta.status === 200) {
-          // let imagen = respuesta.data.imagen;
-
-          let datos = {
-            nombre: this.state.nombre,
-            apellido: this.state.apellido,
-            correo: this.state.correo,
-            password: this.state.password,
-            imagen: respuesta.data.imagen
-          };
-
-          // petición de almacenar usuario
-          axios
-            .post(`${url}/usuarios`, datos)
-            .then(respuesta2 => {
-              if (respuesta2.status === 200) {
-                Swal.fire("!Agregado¡", respuesta2.data.mensaje, "success");
-              } else {
-                Swal.fire(
-                  "¡Alerta!",
-                  respuesta2.response.data.mensaje,
-                  "warning"
-                );
-              }
-            })
-            .catch(error => {
-              Swal.fire("¡Alerta!", error.response.data.mensaje, "warning");
-            });
-        }
-      })
-      .catch(error => {
-        Swal.fire("¡Alerta!", error.response.data.mensaje, "warning");
-      });
+      // petición de almacenar usuario
+      axios
+        .post(`${url}/usuarios`, datos)
+        .then(respuesta2 => {
+          if (respuesta2.status === 200) {
+            Swal.fire("!Agregado¡", respuesta2.data.mensaje, "success");
+          } else {
+            Swal.fire("¡Alerta!", respuesta2.response.data.mensaje, "warning");
+          }
+        })
+        .catch(error => {
+          Swal.fire("¡Alerta!", error.response.data.mensaje, "warning");
+        });
+    }
   };
-
-  // _handleImageChange(e) {
-  //   e.preventDefault();
-
-  //   let reader = new FileReader();
-  //   let imagen = e.target.files[0];
-
-  //   console.log("agarró la imagen");
-
-  //   reader.onloadend = () => {
-  //     this.setState({
-  //       imagen: imagen
-  //     });
-  //   };
-
-  //   reader.readAsDataURL(imagen);
-  //   console.log("cambiando estado" + this.state.imagen);
-  // }
 
   render() {
     return (
