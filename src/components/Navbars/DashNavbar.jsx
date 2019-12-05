@@ -135,7 +135,32 @@ class DashNavbar extends React.Component {
                   </UncontrolledDropdown>
                   {/* /Pedidos */}
                 </Nav>
-                <Nav className="align-items-lg-center ml-lg-auto" navbar>
+
+                <Nav
+                  className="navbar-nav-hover align-items-lg-right ml-lg-auto"
+                  navbar
+                >
+                  {/* Servicios */}
+                  <UncontrolledDropdown nav>
+                    <DropdownToggle nav>
+                      <i className="ni ni-collection d-lg-none mr-1" />
+                      <span className="nav-link-inner--text">Usuario</span>
+                    </DropdownToggle>
+                    <DropdownMenu>
+                      <DropdownItem to="/impresiones" tag={Link}>
+                        <i className="ni ni-single-copy-04 d-lg-none mr-1" />
+                        <span className="nav-link-inner--text">Perfil</span>
+                      </DropdownItem>
+                      <DropdownItem to="/impresiones" tag={Link}>
+                        <i className="ni ni-single-copy-04 d-lg-none mr-1" />
+                        <span className="nav-link-inner--text">Salir</span>
+                      </DropdownItem>
+                    </DropdownMenu>
+                  </UncontrolledDropdown>
+                  {/* /Servicios */}
+                </Nav>
+
+                <Nav className="align-items-lg-center" navbar>
                   <NavItem>
                     <NavLink
                       className="nav-link-icon"
@@ -169,15 +194,6 @@ class DashNavbar extends React.Component {
                       Síguenos en Instagram
                     </UncontrolledTooltip>
                   </NavItem>
-
-                  {/* Salir */}
-                  <UncontrolledDropdown nav>
-                    <DropdownToggle nav to="/admin" tag={Link}>
-                      <i className="ni ni-button-power d-lg-none mr-1" />
-                      <span className="nav-link-inner--text">Salir</span>
-                    </DropdownToggle>
-                  </UncontrolledDropdown>
-                  {/* /Salir */}
                 </Nav>
               </UncontrolledCollapse>
             </Container>

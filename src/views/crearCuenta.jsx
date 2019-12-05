@@ -40,7 +40,7 @@ import {
 // core components
 import DemoNavbar from "components/Navbars/DemoNavbar.jsx";
 
-const url = "http://b8502f64.ngrok.io";
+const url = "http://7882add3.ngrok.io";
 
 class CrearCuenta extends React.Component {
   constructor(props) {
@@ -49,10 +49,14 @@ class CrearCuenta extends React.Component {
       nombre: "",
       apellido: "",
       correo: "",
-      password: ""
+      password: "",
+      selectedFile: null,
+      imagen: ""
     };
+
     this.agregarUsuario = this.agregarUsuario.bind(this);
     this.handleChange = this.handleChange.bind(this);
+    // this.fileSelectedHandler = this.fileSelectedHandler.bind(this);
   }
   componentDidMount() {
     document.documentElement.scrollTop = 0;
@@ -69,6 +73,83 @@ class CrearCuenta extends React.Component {
       [name]: value
     });
   }
+
+  onChangeHandler = event => {
+    this.setState({
+      selectedFile: event.target.files[0],
+      loaded: 0
+    });
+  };
+
+  // Evento para agregar un usuario
+  agregarUsuario = e => {
+    // console.log("En el botón agregar " + this.state);
+    e.preventDefault();
+
+    const data = new FormData();
+    data.append("file", this.state.selectedFile, this.state.selectedFile.name);
+
+    // Obtenemos los datos
+
+    console.log(this.state.selectedFile);
+
+    // Realizamos la petición para imagen
+    axios
+      .post(`${url}/usuarioImagen`, data)
+      .then(respuesta => {
+        // Si se sube la imagen, almacenamos el usuario
+        if (respuesta.status === 200) {
+          // let imagen = respuesta.data.imagen;
+
+          let datos = {
+            nombre: this.state.nombre,
+            apellido: this.state.apellido,
+            correo: this.state.correo,
+            password: this.state.password,
+            imagen: respuesta.data.imagen
+          };
+
+          // petición de almacenar usuario
+          axios
+            .post(`${url}/usuarios`, datos)
+            .then(respuesta2 => {
+              if (respuesta2.status === 200) {
+                Swal.fire("!Agregado¡", respuesta2.data.mensaje, "success");
+              } else {
+                Swal.fire(
+                  "¡Alerta!",
+                  respuesta2.response.data.mensaje,
+                  "warning"
+                );
+              }
+            })
+            .catch(error => {
+              Swal.fire("¡Alerta!", error.response.data.mensaje, "warning");
+            });
+        }
+      })
+      .catch(error => {
+        Swal.fire("¡Alerta!", error.response.data.mensaje, "warning");
+      });
+  };
+
+  // _handleImageChange(e) {
+  //   e.preventDefault();
+
+  //   let reader = new FileReader();
+  //   let imagen = e.target.files[0];
+
+  //   console.log("agarró la imagen");
+
+  //   reader.onloadend = () => {
+  //     this.setState({
+  //       imagen: imagen
+  //     });
+  //   };
+
+  //   reader.readAsDataURL(imagen);
+  //   console.log("cambiando estado" + this.state.imagen);
+  // }
 
   render() {
     return (
@@ -161,7 +242,7 @@ class CrearCuenta extends React.Component {
                             </InputGroupAddon>
                             <Input
                               id="password"
-                              placeholder="Contraseñ"
+                              placeholder="Contraseña"
                               type="password"
                               autoComplete="off"
                               name="password"
@@ -191,7 +272,11 @@ class CrearCuenta extends React.Component {
                         {/* Imagen */}
                         <FormGroup>
                           <InputGroup className="input-group-alternative">
-                            <Input type="file" name="imagen" id="exampleFile" />
+                            <Input
+                              type="file"
+                              name="file"
+                              onChange={this.onChangeHandler}
+                            />
                           </InputGroup>
                         </FormGroup>
                         {/* /Imagen */}
@@ -228,31 +313,6 @@ class CrearCuenta extends React.Component {
   }
 
   /* --------------Zona de peticiones y eventos con axios ----> API(NDA_API)--------------- */
-  // Evento para agregar un usuario
-  agregarUsuario(e) {
-    console.log(this.state);
-    e.preventDefault();
-
-    // Obtenemos los datos
-    let datos = {
-      nombre: this.state.nombre,
-      apellido: this.state.apellido,
-      correo: this.state.correo,
-      password: this.state.password
-    };
-
-    // Realizamos la petición
-    axios
-      .post(`${url}/usuarios`, datos)
-      .then(respuesta => {
-        if (respuesta.status === 200) {
-          Swal.fire("¡Agregado!", respuesta.data.mensaje, "success");
-        }
-      })
-      .catch(error => {
-        Swal.fire("¡Alerta!", error.response.data.mensaje, "warning");
-      });
-  }
 }
 
 export default CrearCuenta;

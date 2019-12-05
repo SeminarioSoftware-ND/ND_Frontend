@@ -22,9 +22,18 @@ import {
   Modal,
   Label
 } from "reactstrap";
+import axios from "axios";
+import Swal from "sweetalert2";
 
 class DashCard extends React.Component {
-  state = {};
+  constructor(props) {
+    super(props);
+    this.state = {
+      nombre: "",
+      descripcion: ""
+    };
+  }
+  // state = {};
   toggleModal = state => {
     this.setState({
       [state]: !this.state[state]
@@ -194,7 +203,7 @@ class DashCard extends React.Component {
                                 <div className="modal-body p-0">
                                   <Card className="bg-secondary shadow border-0">
                                     <CardBody className="px-lg-5 py-lg-5">
-                                      <Form role="form">
+                                      <Form onSubmit={this.agregarCategoria}>
                                         <FormGroup
                                           row
                                           className={classnames("mb-3")}
@@ -207,6 +216,8 @@ class DashCard extends React.Component {
                                               <Input
                                                 id="nombreCat"
                                                 type="text"
+                                                name="nombre"
+                                                onChange={this.handleChange}
                                               />
                                             </InputGroup>
                                           </Col>
@@ -224,6 +235,8 @@ class DashCard extends React.Component {
                                                 id="descripcionCat"
                                                 rows="3"
                                                 type="textarea"
+                                                name="descripcion"
+                                                onChange={this.handleChange}
                                               />
                                             </InputGroup>
                                           </Col>
