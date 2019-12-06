@@ -35,6 +35,7 @@ import IniciarSesion from "views/iniciarSesion.jsx";
 import IndexDash from "views/indexDash.jsx";
 import DashCategorias from "views/DashCategorias.jsx";
 import DashProductos from "views/DashProductos.jsx";
+import UsuarioPerfil from "views/perfilUsuario.jsx";
 
 ReactDOM.render(
   <BrowserRouter>
@@ -78,6 +79,13 @@ ReactDOM.render(
         exact
         render={props => <CrearCuenta {...props} />}
       />
+
+      <Route
+        path="/usuarioPerfil"
+        exact
+        render={props => <UsuarioPerfil {...props} />}
+      />
+
       <Redirect to="/" />
     </Switch>
   </BrowserRouter>,

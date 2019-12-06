@@ -96,7 +96,15 @@ class CrearCuenta extends React.Component {
 
       // Realizamos la petición para la imagen
       axiosConfig
-        .post(`/usuarioImagen`, data)
+        .post(`/usuarioImagen`, data, {
+          onUploadProgress: ProgressEvent => {
+            console.log(
+              "Upload Progress: " +
+                Math.round((ProgressEvent.loaded / ProgressEvent.total) * 100) +
+                "%"
+            );
+          }
+        })
         .then(respuesta => {
           // Si se sube la imagen, almacenamos el usuario
           if (respuesta.status === 200) {
