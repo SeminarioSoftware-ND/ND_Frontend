@@ -17,7 +17,7 @@
 */
 import React from "react";
 import { Link } from "react-router-dom";
-import axios from "axios";
+import axiosConfig from "../axios";
 import Swal from "sweetalert2";
 
 // reactstrap components
@@ -39,8 +39,6 @@ import {
 
 // core components
 import DemoNavbar from "components/Navbars/DemoNavbar.jsx";
-
-const url = "http://7882add3.ngrok.io";
 
 class CrearCuenta extends React.Component {
   constructor(props) {
@@ -97,8 +95,8 @@ class CrearCuenta extends React.Component {
       );
 
       // Realizamos la petición para la imagen
-      axios
-        .post(`${url}/usuarioImagen`, data)
+      axiosConfig
+        .post(`/usuarioImagen`, data)
         .then(respuesta => {
           // Si se sube la imagen, almacenamos el usuario
           if (respuesta.status === 200) {
@@ -112,8 +110,8 @@ class CrearCuenta extends React.Component {
             };
 
             // Realiazmos la petición de almacenar usuario
-            axios
-              .post(`${url}/usuarios`, datos)
+            axiosConfig
+              .post(`/usuarios`, datos)
               .then(respuesta2 => {
                 // Si se almacenaron los datos
                 if (respuesta2.status === 200) {
@@ -148,8 +146,8 @@ class CrearCuenta extends React.Component {
       };
 
       // petición de almacenar usuario
-      axios
-        .post(`${url}/usuarios`, datos)
+      axiosConfig
+        .post(`/usuarios`, datos)
         .then(respuesta2 => {
           if (respuesta2.status === 200) {
             Swal.fire("!Agregado¡", respuesta2.data.mensaje, "success");
@@ -323,8 +321,6 @@ class CrearCuenta extends React.Component {
       </>
     );
   }
-
-  /* --------------Zona de peticiones y eventos con axios ----> API(NDA_API)--------------- */
 }
 
 export default CrearCuenta;
