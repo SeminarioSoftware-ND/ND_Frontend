@@ -41,7 +41,15 @@ class DashCategorias extends React.Component {
       selectedFile: null,
       imagen: "",
       laUrl: "",
-      lasCategoria: []
+      TableData: [
+        {
+          id: "",
+          nombre: "",
+          descripcion: "",
+          estado: "",
+          url: ""
+        }
+      ]
     };
     this.agregarCategoria = this.agregarCategoria.bind(this);
     this.editarCategoria = this.editarCategoria.bind(this);
@@ -54,6 +62,12 @@ class DashCategorias extends React.Component {
     document.documentElement.scrollTop = 0;
     document.scrollingElement.scrollTop = 0;
     this.refs.main.scrollTop = 0;
+
+    // Petición para cargar las categoría
+    axiosConfig.get("/categorias", { responseType: "json" }).then(response => {
+      this.setState({ TableData: response.data });
+      console.log(this.state.TableData);
+    });
   }
 
   // Evento para desplegar los modales
@@ -171,12 +185,72 @@ class DashCategorias extends React.Component {
   editarCategoria(e) {}
 
   // Función para inhabilitar categoria
-  inhabilitarCategoria(e) {}
+  inhabilitarCategoria(e) {
+    alert("holijfslmkvhdkghmdfnjdb");
+  }
 
   // Función para habilitar categoria
-  habilitarCategoria(e) {}
+  habilitarCategoria(estado) {
+    console.log(estado);
+    if (estado === 0) {
+      alert("burro");
+    } else {
+      alert("llegua");
+    }
+  }
 
   render() {
+    var a = -1;
+    const { TableData } = this.state;
+    const columns = [
+      {
+        Header: "Id",
+        accessor: "_id"
+      },
+      {
+        Header: "Nombre",
+        accessor: "nombre"
+      },
+      {
+        Header: "Descripción",
+        accessor: "descripcion"
+      },
+      {
+        Header: "Estado",
+        accessor: "estado"
+      },
+      {
+        Header: "URL",
+        accessor: "url"
+      },
+
+      {
+        Header: "Opciones",
+
+        Cell: props => {
+          a++;
+          return (
+            <div>
+              <Button className="btn-icon" color="info" type="button" size="sm">
+                Editar
+              </Button>
+              <Button
+                className="btn-icon"
+                color="info"
+                type="button"
+                size="sm"
+                id={TableData[a].estado === 0 ? 0 : 1}
+                onClick={e => {
+                  this.habilitarCategoria(e.target.id);
+                }}
+              >
+                {TableData[a].estado === 0 ? "Habilitar" : "Inhabilitar"}
+              </Button>
+            </div>
+          );
+        }
+      }
+    ];
     return (
       <>
         <DashNavbar />
@@ -316,6 +390,16 @@ class DashCategorias extends React.Component {
                 </Modal>
                 {/* MODAL AGREGAR */}
               </section>
+
+              {/* TABLA DE CATEGORÍAS */}
+              <ReactTable
+                columns={columns}
+                data={TableData}
+                filterable
+                defaultPageSize={10}
+                noDataText={"No hay datos disponibles"}
+              ></ReactTable>
+              {/* /TABLA DE CATEGORÍAS */}
             </Container>
           </section>
         </main>

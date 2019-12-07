@@ -514,7 +514,7 @@ class DashProductos extends React.Component {
                   data={this.state.posts}
                   filterable
                   defaultPageSize={10}
-                  noDataText={"No hay datos disponible"}
+                  noDataText={"No hay datos disponibles"}
                 >
                   {(state, Productos, instance) => {
                     this.reactTable = state.pageRows.map(post => {
