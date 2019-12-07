@@ -1,5 +1,7 @@
 import React from "react";
 import classnames from "classnames";
+import axiosConfig from "../axios";
+import Swal from "sweetalert2";
 
 // core components
 import DashNavbar from "components/Navbars/DashNavbar.jsx";
@@ -38,7 +40,8 @@ class DashProductos extends React.Component {
       selectedFile: null,
       imagen: "",
       laUrl: "",
-      estado: ""
+      estado: "",
+      fechaCreacion: ""
     };
     this.agregarProducto = this.agregarProducto.bind(this);
     this.editarProducto = this.editarProducto.bind(this);
@@ -78,6 +81,93 @@ class DashProductos extends React.Component {
   agregarProducto(e) {
     e.preventDefault();
     console.log("Click Agregar");
+
+    let newDate = new Date();
+    let fecha = newDate.getDate();
+
+    // Crear JSON para enviar datos
+    // let datos = {
+    //   nombre: this.state.nombre,
+    //   descripcion: this.state.descripcion,
+    //   categoriaNombre: this.state.categoriaNombre,
+    //   cantidad: this.state.cantidad,
+    //   precio: this.state.precio,
+    //   fechaCreacion: fecha
+    // };
+
+    const datos = {};
+    datos.nombre = this.state.nombre;
+    datos.descripcion = this.state.descripcion;
+    datos.categoriaNombre = this.state.categoriaNombre;
+    datos.cantidad = this.state.cantidad;
+    datos.precio = this.state.precio;
+    datos.fechaCreacion = fecha;
+
+    // Si el usuario seleccionó una imagen
+    if (this.state.selectedFile !== null) {
+      console.log("Imprimiendo con imagen");
+      // Creamos una variable para recoger la imagen
+      const data = new FormData();
+      data.append(
+        "file",
+        this.state.selectedFile,
+        this.state.selectedFile.name
+      );
+
+      // Realizamos la petición para la imagen
+      axiosConfig
+        .post("/productoImagen", data)
+        .then(respuesta => {
+          // Si se sube la imagen, almacenamos el producto
+          if (respuesta.status === 200) {
+            // Creamos nuestro JSON para insertar todo
+            datos.imagen = respuesta.data.imagen;
+
+            // Realizamos la petición de almacenar producto
+            axiosConfig
+              .post("/agregarProducto", datos)
+              .then(respuesta2 => {
+                // Si se almacenaron los datos
+                if (respuesta2.status === 200) {
+                  Swal.fire("¡Agregado!", respuesta2.data.mensaje, "success");
+                } else {
+                  Swal.fire(
+                    "¡Alerta!",
+                    respuesta2.response.data.mensaje,
+                    "warning"
+                  );
+                }
+              })
+              // Error de ingresar Producto
+              .catch(error => {
+                Swal.fire("¡Alerta!", error.response.data.mensaje, "warning");
+              });
+          }
+        })
+        // Error de imagen
+        .catch(error => {
+          Swal.fire("¡Alerta!", error.response.data.mensaje, "warning");
+        });
+    }
+    // Si no seleccionó una imagen
+    else {
+      console.log("Imprimiendo sin imagen " + datos);
+      // Petición de almacenar usuario
+      axiosConfig
+        .post("/agregarProducto", datos)
+        .then(respuesta2 => {
+          // Si se almacenaron los datos
+          if (respuesta2.status === 200) {
+            Swal.fire("¡Agregado!", respuesta2.data.mensaje, "success");
+          } else {
+            Swal.fire("¡Alerta!", respuesta2.response.data.mensaje, "warning");
+          }
+        })
+        // Error de ingresar Producto
+        .catch(error => {
+          Swal.fire("¡Alerta!", error.response.data.mensaje, "warning");
+        });
+    }
   }
 
   editarProducto(e) {
