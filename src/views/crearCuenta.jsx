@@ -123,7 +123,7 @@ class CrearCuenta extends React.Component {
               .then(respuesta2 => {
                 // Si se almacenaron los datos
                 if (respuesta2.status === 200) {
-                  Swal.fire("!Agregado¡", respuesta2.data.mensaje, "success");
+                  Swal.fire("¡Agregado!", respuesta2.data.mensaje, "success");
                 } else {
                   Swal.fire(
                     "¡Alerta!",
@@ -209,6 +209,7 @@ class CrearCuenta extends React.Component {
                               placeholder="Nombre"
                               type="text"
                               name="nombre"
+                              required
                               onChange={this.handleChange}
                             />
                           </InputGroup>
@@ -227,6 +228,7 @@ class CrearCuenta extends React.Component {
                               placeholder="Apellido"
                               type="text"
                               name="apellido"
+                              required
                               onChange={this.handleChange}
                             />
                           </InputGroup>
@@ -245,6 +247,7 @@ class CrearCuenta extends React.Component {
                               placeholder="Correo electrónico"
                               type="email"
                               name="correo"
+                              required
                               onChange={this.handleChange}
                             />
                           </InputGroup>
@@ -264,6 +267,7 @@ class CrearCuenta extends React.Component {
                               type="password"
                               autoComplete="off"
                               name="password"
+                              required
                               onChange={this.handleChange}
                             />
                           </InputGroup>
@@ -281,6 +285,7 @@ class CrearCuenta extends React.Component {
                               placeholder="Confirmar contraseña"
                               type="password"
                               autoComplete="off"
+                              required
                               onChange={this.handleChange}
                             />
                           </InputGroup>

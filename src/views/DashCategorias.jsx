@@ -21,7 +21,7 @@ class DashCategorias extends React.Component {
       <>
         <DashNavbar />
         <main ref="main">
-          <DashHero />
+          <DashHero mensaje="¡BIENVENIDO AL PANEL DE ADMINISTRACIÓN!" />
           <section className="section">
             <Container>
               <DashCard />
