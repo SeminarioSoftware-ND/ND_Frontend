@@ -2,6 +2,9 @@ import React from "react";
 import classnames from "classnames";
 import axiosConfig from "../axios";
 import Swal from "sweetalert2";
+import ReactTable from "react-table-v6";
+import "react-table-v6/react-table.css";
+import ExportToExcel from "../ExportToExcel";
 
 // core components
 import DashNavbar from "components/Navbars/DashNavbar.jsx";
@@ -41,7 +44,8 @@ class DashProductos extends React.Component {
       imagen: "",
       laUrl: "",
       estado: "",
-      fechaCreacion: ""
+      fechaCreacion: "",
+      posts: []
     };
     this.agregarProducto = this.agregarProducto.bind(this);
     this.editarProducto = this.editarProducto.bind(this);
@@ -52,6 +56,15 @@ class DashProductos extends React.Component {
     document.documentElement.scrollTop = 0;
     document.scrollingElement.scrollTop = 0;
     this.refs.main.scrollTop = 0;
+
+    const urlPrueba = "https://jsonplaceholder.typicode.com/posts";
+    fetch(urlPrueba, {
+      method: "GET"
+    })
+      .then(reponse => reponse.json())
+      .then(posts => {
+        this.setState({ posts: posts });
+      });
   }
   // Función para desplegar los modales
   toggleModal = state => {
@@ -170,8 +183,8 @@ class DashProductos extends React.Component {
     }
   }
 
-  editarProducto(e) {
-    e.preventDefault();
+  editarProducto(id) {
+    console.log("id", id);
   }
 
   inhabilitarProducto(e) {
@@ -179,6 +192,72 @@ class DashProductos extends React.Component {
   }
 
   render() {
+    const columns = [
+      {
+        Header: "User ID",
+        accessor: "userId",
+        style: {
+          textAlign: "center"
+        },
+        width: 100,
+        maxWidth: 100,
+        minWidth: 100
+      },
+      {
+        Header: "ID",
+        accessor: "id",
+        style: {
+          textAlign: "center"
+        },
+        width: 100,
+        maxWidth: 100,
+        minWidth: 100
+      },
+      {
+        Header: "Title",
+        accessor: "title"
+      },
+      {
+        Header: "Content",
+        accessor: "body"
+      },
+      {
+        Header: "Opciones",
+        Cell: props => {
+          return (
+            <div>
+              <Button
+                className="btn-icon"
+                color="info"
+                type="button"
+                size="sm"
+                onClick={() => {
+                  this.editarProducto(props.original.id);
+                }}
+              >
+                Editar
+              </Button>
+              <Button
+                className="btn-icon"
+                color="danger"
+                type="button"
+                size="sm"
+              >
+                Eliminar
+              </Button>
+            </div>
+          );
+        },
+        sortable: false,
+        filterable: false,
+        style: {
+          textAlign: "center"
+        },
+        width: 200,
+        maxWidth: 200,
+        minWidth: 100
+      }
+    ];
     return (
       <>
         <DashNavbar />
@@ -420,6 +499,27 @@ class DashProductos extends React.Component {
                 </div>
               </Modal>
               {/* /MODAL AGREGAR */}
+              <section>
+                <ReactTable
+                  columns={columns}
+                  data={this.state.posts}
+                  filterable
+                  defaultPageSize={10}
+                  noDataText={"No hay datos disponible"}
+                >
+                  {(state, Productos, instance) => {
+                    this.reactTable = state.pageRows.map(post => {
+                      return post._original;
+                    });
+                    return (
+                      <div>
+                        {Productos()}
+                        <ExportToExcel posts={this.reactTable} />
+                      </div>
+                    );
+                  }}
+                </ReactTable>
+              </section>
             </Container>
           </section>
         </main>

@@ -58,9 +58,11 @@
     "react": "16.8.6",
     "react-datetime": "2.16.3",
     "react-dom": "16.8.6",
+    "react-html-table-to-excel": "^2.0.0",
     "react-router": "5.0.0",
     "react-router-dom": "5.0.0",
     "react-scripts": "3.0.0",
+    "react-table-v6": "^6.8.6",
     "reactstrap": "8.0.0",
     "sweetalert": "^2.1.2",
     "sweetalert2": "^9.4.2"
