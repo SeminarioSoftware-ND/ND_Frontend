@@ -34,7 +34,7 @@ import CrearCuenta from "views/crearCuenta.jsx";
 import IniciarSesion from "views/iniciarSesion.jsx";
 import IndexDash from "views/indexDash.jsx";
 import DashCategorias from "views/DashCategorias.jsx";
-import DashProductos from "views/DashProductos.jsx";
+import DashProductos from "views/DashProductos2.jsx";
 import UsuarioPerfil from "views/perfilUsuario.jsx";
 
 ReactDOM.render(
