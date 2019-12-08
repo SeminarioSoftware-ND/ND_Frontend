@@ -8,20 +8,15 @@ import "react-table-v6/react-table.css";
 // reactstrap components
 import {
   Container,
-  Badge,
   Button,
   Card,
   CardBody,
-  CardImg,
-  CardHeader,
   FormGroup,
   Form,
   Input,
   InputGroup,
   Row,
   Col,
-  ListGroup,
-  ListGroupItem,
   Modal,
   Label
 } from "reactstrap";
@@ -51,13 +46,14 @@ class DashCategorias extends React.Component {
         }
       ]
     };
+    // Este enlace es necesario para hacer que `this` funcione en el callback
     this.agregarCategoria = this.agregarCategoria.bind(this);
     this.editarCategoria = this.editarCategoria.bind(this);
-    this.inhabilitarCategoria = this.inhabilitarCategoria.bind(this);
     this.habilitarCategoria = this.habilitarCategoria.bind(this);
     this.handleChange = this.handleChange.bind(this);
   }
 
+  // Componente que carga al renderizar la página
   componentDidMount() {
     document.documentElement.scrollTop = 0;
     document.scrollingElement.scrollTop = 0;
@@ -65,8 +61,8 @@ class DashCategorias extends React.Component {
 
     // Petición para cargar las categoría
     axiosConfig.get("/categorias", { responseType: "json" }).then(response => {
+      // Modificamos el estado del arreglo TableData para llenarlo con la consulta
       this.setState({ TableData: response.data });
-      console.log(this.state.TableData);
     });
   }
 
@@ -184,28 +180,66 @@ class DashCategorias extends React.Component {
   // Función para editar categoria
   editarCategoria(e) {}
 
-  // Función para inhabilitar categoria
-  inhabilitarCategoria(e) {
-    alert("holijfslmkvhdkghmdfnjdb");
-  }
-
   // Función para habilitar categoria
   habilitarCategoria(estado) {
     console.log(estado);
+    // Está inhabilitado
     if (estado === 0) {
-      alert("burro");
-    } else {
-      alert("llegua");
+      Swal.fire({
+        title: "¿Desea habilitar una categoría?",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Habilitar"
+      }).then(result => {
+        if (result.value) {
+          Swal.fire(
+            "¡Habilitado!",
+            "La categoría se ha habilitado.",
+            "success"
+          );
+        }
+      });
+    }
+    // Está habilitado
+    else {
+      Swal.fire({
+        title: "¿Desea inhabilitar una categoría?",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Inhabilitar"
+      }).then(result => {
+        if (result.value) {
+          Swal.fire(
+            "¡Inhabilitado!",
+            "La categoría se ha inhabilitado.",
+            "success"
+          );
+        }
+      });
     }
   }
 
   render() {
+    // variable para recorrer el arreglo con los datos
     var a = -1;
+    // Obtenemos por destructuring el arreglo con los datos
     const { TableData } = this.state;
+    // Establecemos las columnas de nuestra tabla
     const columns = [
       {
         Header: "Id",
-        accessor: "_id"
+        accessor: "_id",
+        style: {
+          textAlign: "center"
+        },
+        width: 100,
+        maxWidth: 100,
+        minWidth: 100,
+        show: false
       },
       {
         Header: "Nombre",
@@ -217,16 +251,16 @@ class DashCategorias extends React.Component {
       },
       {
         Header: "Estado",
-        accessor: "estado"
+        accessor: "estado",
+        show: false
       },
       {
         Header: "URL",
-        accessor: "url"
+        accessor: "url",
+        show: false
       },
-
       {
         Header: "Opciones",
-
         Cell: props => {
           a++;
           return (
@@ -248,7 +282,15 @@ class DashCategorias extends React.Component {
               </Button>
             </div>
           );
-        }
+        },
+        sortable: false,
+        filterable: false,
+        style: {
+          textAlign: "center"
+        },
+        width: 200,
+        maxWidth: 200,
+        minWidth: 100
       }
     ];
     return (
@@ -404,6 +446,109 @@ class DashCategorias extends React.Component {
           </section>
         </main>
         <SimpleFooter />
+
+        {/* MODAL EDITAR CATEGORÍA */}
+        <Modal
+          className="modal-dialog-centered modal-lg"
+          isOpen={this.state.editarCategoriaModal}
+          toggle={() => this.toggleModal("editarCategoriaModal")}
+        >
+          <div className="modal-header">
+            <h6 className="modal-title" id="modal-title-default">
+              Editar categoría
+            </h6>
+            <button
+              aria-label="Close"
+              className="close"
+              data-dismiss="modal"
+              type="button"
+              onClick={() => this.toggleModal("editarCategoriaModal")}
+            >
+              <span aria-hidden={true}>×</span>
+            </button>
+          </div>
+          <div className="modal-body p-0">
+            <Card className="bg-secondary shadow border-0">
+              <CardBody className="px-lg-5 py-lg-5">
+                {/* Formulario */}
+                <Form onSubmit={this.editarCategoria}>
+                  {/* Nombre */}
+                  <FormGroup row className={classnames("mb-3")}>
+                    <Label for="nombreCatEditar" sm={4}>
+                      Nombre
+                    </Label>
+                    <Col sm={8}>
+                      <InputGroup className="input-group-alternative">
+                        <Input
+                          id="nombreCatEditar"
+                          placeholder="Nombre"
+                          type="text"
+                          name="nombre"
+                          required
+                          onChange={this.handleChange}
+                        />
+                      </InputGroup>
+                    </Col>
+                  </FormGroup>
+                  {/* /Nombre */}
+
+                  {/* Descripción */}
+                  <FormGroup row className={classnames("mb-3")}>
+                    <Label for="descripcionCatEditar" sm={4}>
+                      Descripción
+                    </Label>
+                    <Col sm={8}>
+                      <InputGroup className="form-control-alternative">
+                        <Input
+                          id="descripcionCatEditar"
+                          rows="3"
+                          type="textarea"
+                          name="descripcion"
+                          required
+                          onChange={this.handleChange}
+                        />
+                      </InputGroup>
+                    </Col>
+                  </FormGroup>
+                  {/* /Descripcion */}
+
+                  {/* Imagen */}
+                  <FormGroup row className={classnames("mb-3")}>
+                    <InputGroup className="input-group-alternative">
+                      <Input
+                        id="imagenCat"
+                        type="file"
+                        name="file"
+                        onChange={this.onChangeHandler}
+                      />
+                    </InputGroup>
+                  </FormGroup>
+                  {/* /Imagen */}
+
+                  <div className="modal-footer  pb-1">
+                    <FormGroup row className={classnames("mt-3")}>
+                      {/* Botón agregar */}
+                      <Button color="success" type="submit">
+                        Editar
+                      </Button>
+                      {/* Botón cerrar */}
+                      <Button
+                        className="ml-auto"
+                        color="link"
+                        data-dismiss="modal"
+                        type="button"
+                        onClick={() => this.toggleModal("editarCategoriaModal")}
+                      >
+                        Cerrar
+                      </Button>
+                    </FormGroup>
+                  </div>
+                </Form>
+              </CardBody>
+            </Card>
+          </div>
+        </Modal>
+        {/* MODAL EDITAR CATEGORÍA */}
       </>
     );
   }
