@@ -36,6 +36,7 @@ import IndexDash from "views/indexDash.jsx";
 import DashCategorias from "views/DashCategorias.jsx";
 import DashProductos from "views/DashProductos2.jsx";
 import UsuarioPerfil from "views/perfilUsuario.jsx";
+import Productos from "views/productos.jsx";
 
 ReactDOM.render(
   <BrowserRouter>
@@ -55,6 +56,12 @@ ReactDOM.render(
       {/* RUTAS CREADAS */}
       {/* TIENDA */}
       <Route path="/" exact render={props => <Index {...props} />} />
+
+      <Route
+        path="/productos"
+        exact
+        render={props => <Productos {...props} />}
+      />
 
       {/* /TIENDA */}
 
