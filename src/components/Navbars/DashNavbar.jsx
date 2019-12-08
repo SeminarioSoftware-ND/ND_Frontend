@@ -109,23 +109,6 @@ class DashNavbar extends React.Component {
                   </UncontrolledDropdown>
                   {/* /Productos */}
 
-                  {/* Servicios */}
-                  <UncontrolledDropdown nav>
-                    <DropdownToggle nav>
-                      <i className="ni ni-collection d-lg-none mr-1" />
-                      <span className="nav-link-inner--text">Servicios</span>
-                    </DropdownToggle>
-                    <DropdownMenu>
-                      <DropdownItem to="/impresiones" tag={Link}>
-                        <i className="ni ni-single-copy-04 d-lg-none mr-1" />
-                        <span className="nav-link-inner--text">
-                          Impresiones
-                        </span>
-                      </DropdownItem>
-                    </DropdownMenu>
-                  </UncontrolledDropdown>
-                  {/* /Servicios */}
-
                   {/* Pedidos */}
                   <UncontrolledDropdown nav>
                     <DropdownToggle nav to="/admin" tag={Link}>
@@ -147,7 +130,7 @@ class DashNavbar extends React.Component {
                       <span className="nav-link-inner--text">Usuario</span>
                     </DropdownToggle>
                     <DropdownMenu>
-                      <DropdownItem to="/impresiones" tag={Link}>
+                      <DropdownItem to="/usuarioPerfil" tag={Link}>
                         <i className="ni ni-single-copy-04 d-lg-none mr-1" />
                         <span className="nav-link-inner--text">Perfil</span>
                       </DropdownItem>

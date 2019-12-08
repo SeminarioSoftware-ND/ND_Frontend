@@ -19,7 +19,7 @@ import {
 } from "reactstrap";
 
 // core components
-import DemoNavbar from "components/Navbars/DemoNavbar.jsx";
+import DashNavbar from "components/Navbars/DashNavbar.jsx";
 import SimpleFooter from "components/Footers/SimpleFooter.jsx";
 
 class perfilUsuario extends React.Component {
@@ -147,7 +147,7 @@ class perfilUsuario extends React.Component {
   render() {
     return (
       <>
-        <DemoNavbar />
+        <DashNavbar />
         <main className="profile-page" ref="main">
           <section className="section-profile-cover section-shaped my-0">
             {/* Circles background */}
