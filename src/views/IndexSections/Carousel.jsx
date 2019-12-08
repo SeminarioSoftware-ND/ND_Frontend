@@ -68,7 +68,7 @@ class Carousel extends React.Component {
                 </Button>
               </Col>
               <Col className="mb-lg-auto" lg="6">
-                <div className="rounded shadow-lg overflow-hidden transform-perspective-right">
+                <div className="rounded shadow-lg ">
                   <UncontrolledCarousel items={items} />
                 </div>
               </Col>

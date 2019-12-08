@@ -23,7 +23,7 @@ import "assets/vendor/nucleo/css/nucleo.css";
 import "assets/vendor/font-awesome/css/font-awesome.min.css";
 import "assets/scss/argon-design-system-react.scss";
 
-import Index from "views/Index.jsx";
+import Index from "views/indexCliente";
 import Landing from "views/examples/Landing.jsx";
 // import Login from "views/examples/Login.jsx";
 import Profile from "views/examples/Profile.jsx";
@@ -40,7 +40,7 @@ import UsuarioPerfil from "views/perfilUsuario.jsx";
 ReactDOM.render(
   <BrowserRouter>
     <Switch>
-      <Route path="/" exact render={props => <Index {...props} />} />
+      {/* <Route path="/" exact render={props => <Index {...props} />} /> */}
       <Route
         path="/landing-page"
         exact
@@ -53,7 +53,12 @@ ReactDOM.render(
         render={props => <Profile {...props} />}
       />
       {/* RUTAS CREADAS */}
+      {/* TIENDA */}
+      <Route path="/" exact render={props => <Index {...props} />} />
 
+      {/* /TIENDA */}
+
+      {/* DASHBOARD / ADMIN */}
       <Route path="/admin" exact render={props => <IndexDash {...props} />} />
 
       <Route
