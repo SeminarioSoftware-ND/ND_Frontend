@@ -17,7 +17,8 @@ import {
   Container,
   Row,
   Col,
-  UncontrolledTooltip
+  UncontrolledTooltip,
+  Media
 } from "reactstrap";
 
 class DashNavbar extends React.Component {
@@ -67,7 +68,7 @@ class DashNavbar extends React.Component {
                 <Nav className="navbar-nav-hover align-items-lg-center" navbar>
                   {/* Inicio */}
                   <UncontrolledDropdown nav>
-                    <DropdownToggle nav to="/admin" tag={Link}>
+                    <DropdownToggle nav to="/" tag={Link}>
                       <i className="ni ni-shop d-lg-none mr-1" />
                       <span className="nav-link-inner--text">Inicio</span>
                     </DropdownToggle>
@@ -76,7 +77,7 @@ class DashNavbar extends React.Component {
 
                   {/* Categorías */}
                   <UncontrolledDropdown nav>
-                    <DropdownToggle nav to="/admin/categorias" tag={Link}>
+                    <DropdownToggle nav to="/categorias" tag={Link}>
                       <i className="ni ni-tag d-lg-none mr-1" />
                       <span className="nav-link-inner--text">Categorías</span>
                     </DropdownToggle>
@@ -85,7 +86,7 @@ class DashNavbar extends React.Component {
 
                   {/* Productos */}
                   <UncontrolledDropdown nav>
-                    <DropdownToggle nav to="/admin/productos" tag={Link}>
+                    <DropdownToggle nav to="/productos" tag={Link}>
                       <i className="ni ni-bag-17 d-lg-none mr-1" />
                       <span className="nav-link-inner--text">Productos</span>
                     </DropdownToggle>
@@ -94,10 +95,22 @@ class DashNavbar extends React.Component {
 
                   {/* Pedidos */}
                   <UncontrolledDropdown nav>
-                    <DropdownToggle nav to="/admin" tag={Link}>
-                      <i className="ni ni-basket d-lg-none mr-1" />
-                      <span className="nav-link-inner--text">Pedidos</span>
+                    <DropdownToggle nav>
+                      <i className="ni ni-badge d-lg-none mr-1" />
+                      <span className="nav-link-inner--text">Nosotros</span>
                     </DropdownToggle>
+                    <DropdownMenu>
+                      <DropdownItem to="/usuarioPerfil" tag={Link}>
+                        <i className="ni ni-single-copy-04 d-lg-none mr-1" />
+                        <span className="nav-link-inner--text">Acerca</span>
+                      </DropdownItem>
+                      <DropdownItem to="/impresiones" tag={Link}>
+                        <i className="ni ni-single-copy-04 d-lg-none mr-1" />
+                        <span className="nav-link-inner--text">
+                          Contáctanos
+                        </span>
+                      </DropdownItem>
+                    </DropdownMenu>
                   </UncontrolledDropdown>
                   {/* /Pedidos */}
                 </Nav>
@@ -106,7 +119,7 @@ class DashNavbar extends React.Component {
                   className="navbar-nav-hover align-items-lg-right ml-lg-auto"
                   navbar
                 >
-                  {/* Servicios */}
+                  {/* Usuario */}
                   <UncontrolledDropdown nav>
                     <DropdownToggle nav>
                       <i className="ni ni-collection d-lg-none mr-1" />
@@ -123,7 +136,76 @@ class DashNavbar extends React.Component {
                       </DropdownItem>
                     </DropdownMenu>
                   </UncontrolledDropdown>
-                  {/* /Servicios */}
+                  {/* /Usuario */}
+
+                  {/* Carrito */}
+                  <UncontrolledDropdown nav>
+                    <DropdownToggle nav>
+                      <i className="ni ni-cart" />
+                      <span className="nav-link-inner--text d-lg-none ml-2">
+                        Carrito
+                      </span>
+                    </DropdownToggle>
+                    <DropdownMenu className="dropdown-menu-lg">
+                      <div className="dropdown-menu-inner">
+                        <Media
+                          className="d-flex align-items-center"
+                          href="https://demos.creative-tim.com/argon-design-system-react/#/documentation/overview?ref=adsr-navbar"
+                          target="_blank"
+                        >
+                          <div className="icon icon-shape bg-gradient-primary rounded-circle text-white">
+                            <i className="ni ni-spaceship" />
+                          </div>
+                          <Media body className="ml-3">
+                            <h6 className="heading text-primary mb-md-1">
+                              Getting started
+                            </h6>
+                            <p className="description d-none d-md-inline-block mb-0">
+                              Learn how to use Argon compiling Scss, change
+                              brand colors and more.
+                            </p>
+                          </Media>
+                        </Media>
+                        <Media
+                          className="d-flex align-items-center"
+                          href="https://demos.creative-tim.com/argon-design-system-react/#/documentation/colors?ref=adsr-navbar"
+                          target="_blank"
+                        >
+                          <div className="icon icon-shape bg-gradient-success rounded-circle text-white">
+                            <i className="ni ni-palette" />
+                          </div>
+                          <Media body className="ml-3">
+                            <h6 className="heading text-primary mb-md-1">
+                              Foundation
+                            </h6>
+                            <p className="description d-none d-md-inline-block mb-0">
+                              Learn more about colors, typography, icons and the
+                              grid system we used for Argon.
+                            </p>
+                          </Media>
+                        </Media>
+                        <Media
+                          className="d-flex align-items-center"
+                          href="https://demos.creative-tim.com/argon-design-system-react/#/documentation/alert?ref=adsr-navbar"
+                          target="_blank"
+                        >
+                          <div className="icon icon-shape bg-gradient-warning rounded-circle text-white">
+                            <i className="ni ni-ui-04" />
+                          </div>
+                          <Media body className="ml-3">
+                            <h5 className="heading text-warning mb-md-1">
+                              Components
+                            </h5>
+                            <p className="description d-none d-md-inline-block mb-0">
+                              Browse our 50 beautiful handcrafted components
+                              offered in the Free version.
+                            </p>
+                          </Media>
+                        </Media>
+                      </div>
+                    </DropdownMenu>
+                  </UncontrolledDropdown>
+                  {/* Carrito */}
                 </Nav>
 
                 <Nav className="align-items-lg-center" navbar>
