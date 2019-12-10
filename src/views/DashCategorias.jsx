@@ -36,6 +36,7 @@ class DashCategorias extends React.Component {
       selectedFile: null,
       imagen: "",
       laUrl: "",
+      source: null,
       TableData: [
         {
           id: "",
@@ -63,6 +64,7 @@ class DashCategorias extends React.Component {
     axiosConfig.get("/categorias", { responseType: "json" }).then(response => {
       // Modificamos el estado del arreglo TableData para llenarlo con la consulta
       this.setState({ TableData: response.data });
+      console.log(response);
     });
   }
 
@@ -74,8 +76,35 @@ class DashCategorias extends React.Component {
   };
 
   // Función para cargar datos al modal
-  cargarDatos(items) {
-    this.setState({ nombre: items });
+  cargarDatos(items, laImagen) {
+    this.setState({
+      nombre: items.nombre,
+      descripcion: items.descripcion
+    });
+
+    // Petición para cargar la imagen
+    axiosConfig
+      .get(`/imagen/`, {
+        params: {
+          url: laImagen
+        },
+        responseType: "arraybuffer"
+      })
+      .then(respuesta => {
+        // Convertir imagen para mostrarla en el modal
+        const base64 = btoa(
+          new Uint8Array(respuesta.data).reduce(
+            (data, byte) => data + String.fromCharCode(byte),
+            ""
+          )
+        );
+        this.setState({ source: "data:;base64," + base64 });
+        console.log(this.state.source);
+        console.log(respuesta.response.data.mensaje);
+      })
+      .catch(error => {
+        console.log(error.response.data.mensaje);
+      });
   }
 
   // Evento para atrapar el cambio en los inputs
@@ -265,9 +294,20 @@ class DashCategorias extends React.Component {
           a++;
           return (
             <div>
-              <Button className="btn-icon" color="info" type="button" size="sm">
+              <Button
+                className="btn-icon"
+                color="info"
+                type="button"
+                size="sm"
+                onClick={() => {
+                  this.toggleModal("editarCategoriaModal");
+                  // Enviar los datos que están en la tabla
+                  this.cargarDatos(props.original, props.original.imagen);
+                }}
+              >
                 Editar
               </Button>
+
               <Button
                 className="btn-icon"
                 color="info"
@@ -278,7 +318,7 @@ class DashCategorias extends React.Component {
                   this.habilitarCategoria(e.target.id);
                 }}
               >
-                {TableData[a].estado === 0 ? "Habilitar" : "Inhabilitar"}
+                {TableData[a].estado === 0 ? " Habilitar" : "Inhabilitar"}
               </Button>
             </div>
           );
@@ -324,7 +364,7 @@ class DashCategorias extends React.Component {
                       <span className="btn-inner--icon mr-1">
                         <i className="ni ni-fat-add" />
                       </span>
-                      <span className="btn-inner--text">Agregar producto</span>
+                      <span className="btn-inner--text">Agregar categoría</span>
                     </Button>
                   </Col>
                 </Row>
@@ -484,6 +524,7 @@ class DashCategorias extends React.Component {
                           placeholder="Nombre"
                           type="text"
                           name="nombre"
+                          value={this.state.nombre}
                           required
                           onChange={this.handleChange}
                         />
@@ -504,6 +545,7 @@ class DashCategorias extends React.Component {
                           rows="3"
                           type="textarea"
                           name="descripcion"
+                          value={this.state.descripcion}
                           required
                           onChange={this.handleChange}
                         />
@@ -524,6 +566,17 @@ class DashCategorias extends React.Component {
                     </InputGroup>
                   </FormGroup>
                   {/* /Imagen */}
+
+                  <div>
+                    <FormGroup row>
+                      <img
+                        className="center-block"
+                        alt="..."
+                        src={this.state.source}
+                        style={{ width: "300px" }}
+                      />
+                    </FormGroup>
+                  </div>
 
                   <div className="modal-footer  pb-1">
                     <FormGroup row className={classnames("mt-3")}>
