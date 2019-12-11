@@ -4,6 +4,7 @@ import axiosConfig from "../axios";
 import Swal from "sweetalert2";
 import ReactTable from "react-table-v6";
 import "react-table-v6/react-table.css";
+import { Redirect, Route, Switch } from "react-router-dom";
 
 // reactstrap components
 import {
@@ -64,7 +65,6 @@ class DashCategorias extends React.Component {
     axiosConfig.get("/categorias", { responseType: "json" }).then(response => {
       // Modificamos el estado del arreglo TableData para llenarlo con la consulta
       this.setState({ TableData: response.data });
-      console.log(response);
     });
   }
 
@@ -99,11 +99,6 @@ class DashCategorias extends React.Component {
           )
         );
         this.setState({ source: "data:;base64," + base64 });
-        console.log(this.state.source);
-        console.log(respuesta.response.data.mensaje);
-      })
-      .catch(error => {
-        console.log(error.response.data.mensaje);
       });
   }
 
@@ -128,7 +123,6 @@ class DashCategorias extends React.Component {
   // Función para agregar categoria
   agregarCategoria(e) {
     e.preventDefault();
-    console.log(this.state);
 
     // Si el usuario seleccionó una imagen
     if (this.state.selectedFile !== null) {
@@ -160,6 +154,7 @@ class DashCategorias extends React.Component {
                 // Si se almacenaron los datos
                 if (respuesta2.status === 200) {
                   Swal.fire("¡Agregado!", respuesta2.data.mensaje, "success");
+                  window.location = "/";
                 } else {
                   Swal.fire(
                     "¡Alerta!",
@@ -168,7 +163,6 @@ class DashCategorias extends React.Component {
                   );
                 }
               })
-              // Error de ingresar categoría
               .catch(error => {
                 Swal.fire("¡Alerta!", error.response.data.mensaje, "warning");
               });
@@ -176,6 +170,7 @@ class DashCategorias extends React.Component {
         })
         // Error de imagen
         .catch(error => {
+          console.log(error.response.data);
           Swal.fire("¡Alerta!", error.response.data.mensaje, "warning");
         });
     }
@@ -478,8 +473,9 @@ class DashCategorias extends React.Component {
                 columns={columns}
                 data={TableData}
                 filterable
-                defaultPageSize={10}
+                defaultPageSize={50}
                 noDataText={"No hay datos disponibles"}
+                showPageSizeOptions={false}
               ></ReactTable>
               {/* /TABLA DE CATEGORÍAS */}
             </Container>
@@ -512,6 +508,19 @@ class DashCategorias extends React.Component {
               <CardBody className="px-lg-5 py-lg-5">
                 {/* Formulario */}
                 <Form onSubmit={this.editarCategoria}>
+                  {/* Imagen Actual */}
+                  <div>
+                    <FormGroup row className="justify-content-center">
+                      <img
+                        className="center-block"
+                        alt="..."
+                        src={this.state.source}
+                        style={{ width: "210px" }}
+                      />
+                    </FormGroup>
+                  </div>
+                  {/* Imagen Actual */}
+
                   {/* Nombre */}
                   <FormGroup row className={classnames("mb-3")}>
                     <Label for="nombreCatEditar" sm={4}>
@@ -566,17 +575,6 @@ class DashCategorias extends React.Component {
                     </InputGroup>
                   </FormGroup>
                   {/* /Imagen */}
-
-                  <div>
-                    <FormGroup row>
-                      <img
-                        className="center-block"
-                        alt="..."
-                        src={this.state.source}
-                        style={{ width: "300px" }}
-                      />
-                    </FormGroup>
-                  </div>
 
                   <div className="modal-footer  pb-1">
                     <FormGroup row className={classnames("mt-3")}>
