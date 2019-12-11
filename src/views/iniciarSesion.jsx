@@ -17,6 +17,8 @@
 */
 import React from "react";
 import { Link } from "react-router-dom";
+import axiosConfig from "../axios";
+import Swal from "sweetalert2";
 
 // reactstrap components
 import {
@@ -39,6 +41,44 @@ import {
 import DemoNavbar from "components/Navbars/DemoNavbar.jsx";
 
 class IniciarSesion extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      correo: "",
+      password: ""
+    };
+    this.acceder = this.acceder.bind(this);
+    this.handleChange = this.handleChange.bind(this);
+  }
+
+  // Evento para atrapar el cambio en los inputs
+  handleChange(e) {
+    // Obtenemos por destructuring lo que está en los Inputs
+    const { name, value } = e.target;
+    // Actualizamos su estado
+    this.setState({
+      [name]: value
+    });
+  }
+
+  // Login
+  acceder(e) {
+    e.preventDefault();
+    console.log("click");
+    let datos = {
+      correo: this.state.correo,
+      password: this.state.password
+    };
+    axiosConfig
+      .post("/autenticar", datos)
+      .then(respuesta => {
+        Swal.fire("Entró", respuesta.data.mensaje, "success");
+      })
+      .catch(error => {
+        Swal.fire("Error", error.response.data.mensaje, "warning");
+      });
+  }
+
   componentDidMount() {
     document.documentElement.scrollTop = 0;
     document.scrollingElement.scrollTop = 0;
@@ -70,7 +110,7 @@ class IniciarSesion extends React.Component {
                       </div>
                     </CardHeader>
                     <CardBody className="px-lg-5 py-lg-5">
-                      <Form role="form">
+                      <Form onSubmit={this.acceder}>
                         {/* Email */}
                         <FormGroup>
                           <InputGroup className="input-group-alternative mb-3">
@@ -84,6 +124,7 @@ class IniciarSesion extends React.Component {
                               type="email"
                               name="correo"
                               required
+                              onChange={this.handleChange}
                             />
                           </InputGroup>
                         </FormGroup>
@@ -101,7 +142,7 @@ class IniciarSesion extends React.Component {
                               type="password"
                               autoComplete="off"
                               name="password"
-                              required
+                              onChange={this.handleChange}
                             />
                           </InputGroup>
                         </FormGroup>

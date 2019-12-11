@@ -124,6 +124,7 @@ class CrearCuenta extends React.Component {
                 // Si se almacenaron los datos
                 if (respuesta2.status === 200) {
                   Swal.fire("¡Agregado!", respuesta2.data.mensaje, "success");
+                  window.location = "/iniciarSesion";
                 } else {
                   Swal.fire(
                     "¡Alerta!",
@@ -159,6 +160,7 @@ class CrearCuenta extends React.Component {
         .then(respuesta2 => {
           if (respuesta2.status === 200) {
             Swal.fire("!Agregado¡", respuesta2.data.mensaje, "success");
+            window.location = "/iniciarSesion";
           } else {
             Swal.fire("¡Alerta!", respuesta2.response.data.mensaje, "warning");
           }
