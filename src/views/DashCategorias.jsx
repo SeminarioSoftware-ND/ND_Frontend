@@ -4,7 +4,6 @@ import axiosConfig from "../axios";
 import Swal from "sweetalert2";
 import ReactTable from "react-table-v6";
 import "react-table-v6/react-table.css";
-import { Redirect, Route, Switch } from "react-router-dom";
 
 // reactstrap components
 import {
@@ -36,7 +35,9 @@ class DashCategorias extends React.Component {
       descripcion: "",
       selectedFile: null,
       imagen: "",
+      imagenActual: "",
       laUrl: "",
+      nombreEstado: "",
       source: null,
       TableData: [
         {
@@ -51,7 +52,7 @@ class DashCategorias extends React.Component {
     // Este enlace es necesario para hacer que `this` funcione en el callback
     this.agregarCategoria = this.agregarCategoria.bind(this);
     this.editarCategoria = this.editarCategoria.bind(this);
-    this.habilitarCategoria = this.habilitarCategoria.bind(this);
+    this.cambiarEstadoCategoria = this.cambiarEstadoCategoria.bind(this);
     this.handleChange = this.handleChange.bind(this);
   }
 
@@ -79,7 +80,10 @@ class DashCategorias extends React.Component {
   cargarDatos(items, laImagen) {
     this.setState({
       nombre: items.nombre,
-      descripcion: items.descripcion
+      descripcion: items.descripcion,
+      nombreEstado: items.nombreEstado,
+      laUrl: items.url,
+      imagenActual: items.imagen
     });
 
     // Petición para cargar la imagen
@@ -154,7 +158,7 @@ class DashCategorias extends React.Component {
                 // Si se almacenaron los datos
                 if (respuesta2.status === 200) {
                   Swal.fire("¡Agregado!", respuesta2.data.mensaje, "success");
-                  window.location = "/";
+                  window.location = "/admin/categorias";
                 } else {
                   Swal.fire(
                     "¡Alerta!",
@@ -170,7 +174,6 @@ class DashCategorias extends React.Component {
         })
         // Error de imagen
         .catch(error => {
-          console.log(error.response.data);
           Swal.fire("¡Alerta!", error.response.data.mensaje, "warning");
         });
     }
@@ -190,6 +193,7 @@ class DashCategorias extends React.Component {
           // Si se almacenaron los datos
           if (respuesta2.status === 200) {
             Swal.fire("¡Agregado!", respuesta2.data.mensaje, "success");
+            window.location = "/admin/categorias";
           } else {
             Swal.fire("¡Alerta!", respuesta2.response.data.mensaje, "warning");
           }
@@ -202,15 +206,100 @@ class DashCategorias extends React.Component {
   }
 
   // Función para editar categoria
-  editarCategoria(e) {}
+  editarCategoria(e) {
+    e.preventDefault();
+
+    // Si el usuario seleccionó una imagen
+    if (this.state.selectedFile !== null) {
+      // Creamos una variable para recoger la imagen
+      const data = new FormData();
+      data.append(
+        "file",
+        this.state.selectedFile,
+        this.state.selectedFile.name
+      );
+
+      // Realizamos la petición para insertar la imagen
+      axiosConfig
+        .post("/categoriaImagen/", data, {
+          params: {
+            url: this.state.laUrl
+          }
+        })
+        .then(respuesta => {
+          // Si se sube la imagen, actualizamos la categoria
+          if (respuesta.status === 200) {
+            // Creamos nuestro JSON para modificar los datos
+            let datos = {
+              nombre: this.state.nombre,
+              descripcion: this.state.descripcion,
+              imagen: respuesta.data.imagen,
+              imagenActual: this.state.imagenActual
+            };
+
+            // Realizamos la petición para actualizar la categoría
+            axiosConfig
+              .post(`/actualizarCategoria/${this.state.laUrl}`, datos)
+              .then(respuesta2 => {
+                // Si se modificaron los datos
+                if (respuesta2.status === 200) {
+                  Swal.fire(
+                    "¡Actualizado!",
+                    respuesta2.data.mensaje,
+                    "success"
+                  );
+                  window.location = "/admin/categorias";
+                } else {
+                  Swal.fire(
+                    "¡Alerta!",
+                    respuesta2.response.data.mensaje,
+                    "warning"
+                  );
+                }
+              })
+              .catch(error => {
+                Swal.fire("¡Error!", error.response.data.mensaje, "warning");
+              });
+          }
+        })
+        // Error de imagen
+        .catch(error => {
+          Swal.fire("¡Alerta!", error.response.data.mensaje, "warning");
+        });
+    }
+    // Si no se seleccionó imagen
+    else {
+      // Creamos nuestro JSON para modificar los datos
+      let datos = {
+        nombre: this.state.nombre,
+        descripcion: this.state.descripcion,
+        imagenActual: this.state.imagenActual,
+        imagen: this.state.imagenActual
+      };
+      // Realizamos la petición para actualizar la categoría
+      axiosConfig
+        .post(`/actualizarCategoria/${this.state.laUrl}`, datos)
+        .then(respuesta2 => {
+          // Si se modificaron los datos
+          if (respuesta2.status === 200) {
+            Swal.fire("¡Actualizado!", respuesta2.data.mensaje, "success");
+            window.location = "/admin/categorias";
+          } else {
+            Swal.fire("¡Alerta!", respuesta2.response.data.mensaje, "warning");
+          }
+        })
+        .catch(error => {
+          Swal.fire("¡Error!", error.response.data.mensaje, "warning");
+        });
+    }
+  }
 
   // Función para habilitar categoria
-  habilitarCategoria(estado) {
-    console.log(estado);
-    // Está inhabilitado
-    if (estado === 0) {
+  cambiarEstadoCategoria(estado) {
+    // Está habilitada
+    if (estado === "Inhabilitada") {
       Swal.fire({
-        title: "¿Desea habilitar una categoría?",
+        title: "¿Desea habilitar la categoría?",
         icon: "warning",
         showCancelButton: true,
         confirmButtonColor: "#3085d6",
@@ -218,18 +307,30 @@ class DashCategorias extends React.Component {
         confirmButtonText: "Habilitar"
       }).then(result => {
         if (result.value) {
-          Swal.fire(
-            "¡Habilitado!",
-            "La categoría se ha habilitado.",
-            "success"
-          );
+          axiosConfig
+            .post(`/habilitarCategoria/${this.state.laUrl}`)
+            .then(respuesta => {
+              if (respuesta.status === 200) {
+                Swal.fire("Habilitada", respuesta.data.mensaje, "success");
+                window.location = "/admin/categorias";
+              } else {
+                Swal.fire(
+                  "¡Alerta!",
+                  respuesta.response.data.mensaje,
+                  "warning"
+                );
+              }
+            })
+            .catch(error => {
+              Swal.fire("¡Error!", error.response.data.mensaje, "warning");
+            });
         }
       });
     }
     // Está habilitado
     else {
       Swal.fire({
-        title: "¿Desea inhabilitar una categoría?",
+        title: "¿Desea habilitar la categoría?",
         icon: "warning",
         showCancelButton: true,
         confirmButtonColor: "#3085d6",
@@ -237,19 +338,29 @@ class DashCategorias extends React.Component {
         confirmButtonText: "Inhabilitar"
       }).then(result => {
         if (result.value) {
-          Swal.fire(
-            "¡Inhabilitado!",
-            "La categoría se ha inhabilitado.",
-            "success"
-          );
+          axiosConfig
+            .post(`/inhabilitarCategoria/${this.state.laUrl}`)
+            .then(respuesta => {
+              if (respuesta.status === 200) {
+                Swal.fire("Inhabilitada", respuesta.data.mensaje, "success");
+                window.location = "/admin/categorias";
+              } else {
+                Swal.fire(
+                  "¡Alerta!",
+                  respuesta.response.data.mensaje,
+                  "warning"
+                );
+              }
+            })
+            .catch(error => {
+              Swal.fire("¡Error!", error.response.data.mensaje, "warning");
+            });
         }
       });
     }
   }
 
   render() {
-    // variable para recorrer el arreglo con los datos
-    var a = -1;
     // Obtenemos por destructuring el arreglo con los datos
     const { TableData } = this.state;
     // Establecemos las columnas de nuestra tabla
@@ -267,7 +378,10 @@ class DashCategorias extends React.Component {
       },
       {
         Header: "Nombre",
-        accessor: "nombre"
+        accessor: "nombre",
+        width: 200,
+        maxWidth: 200,
+        minWidth: 100
       },
       {
         Header: "Descripción",
@@ -275,8 +389,10 @@ class DashCategorias extends React.Component {
       },
       {
         Header: "Estado",
-        accessor: "estado",
-        show: false
+        accessor: "nombreEstado",
+        width: 120,
+        maxWidth: 120,
+        minWidth: 100
       },
       {
         Header: "URL",
@@ -286,7 +402,6 @@ class DashCategorias extends React.Component {
       {
         Header: "Opciones",
         Cell: props => {
-          a++;
           return (
             <div>
               <Button
@@ -302,19 +417,6 @@ class DashCategorias extends React.Component {
               >
                 Editar
               </Button>
-
-              <Button
-                className="btn-icon"
-                color="info"
-                type="button"
-                size="sm"
-                id={TableData[a].estado === 0 ? 0 : 1}
-                onClick={e => {
-                  this.habilitarCategoria(e.target.id);
-                }}
-              >
-                {TableData[a].estado === 0 ? " Habilitar" : "Inhabilitar"}
-              </Button>
             </div>
           );
         },
@@ -323,8 +425,8 @@ class DashCategorias extends React.Component {
         style: {
           textAlign: "center"
         },
-        width: 200,
-        maxWidth: 200,
+        width: 100,
+        maxWidth: 100,
         minWidth: 100
       }
     ];
@@ -473,9 +575,13 @@ class DashCategorias extends React.Component {
                 columns={columns}
                 data={TableData}
                 filterable
-                defaultPageSize={50}
+                defaultPageSize={10}
                 noDataText={"No hay datos disponibles"}
-                showPageSizeOptions={false}
+                previousText={"Anterior"}
+                nextText={"Siguiente"}
+                pageText={"Página"}
+                ofText={"de"}
+                rowsText={"registros"}
               ></ReactTable>
               {/* /TABLA DE CATEGORÍAS */}
             </Container>
@@ -563,6 +669,24 @@ class DashCategorias extends React.Component {
                   </FormGroup>
                   {/* /Descripcion */}
 
+                  {/* Estado */}
+                  <FormGroup row className={classnames("mb-3")}>
+                    <Label for="estadoCat" sm={4}>
+                      Estado
+                    </Label>
+                    <Col sm={4}>
+                      <InputGroup className="form-control-alternative">
+                        <Input
+                          id="estadoCat"
+                          type="text"
+                          value={this.state.nombreEstado}
+                          readOnly
+                        />
+                      </InputGroup>
+                    </Col>
+                  </FormGroup>
+                  {/* Estado */}
+
                   {/* Imagen */}
                   <FormGroup row className={classnames("mb-3")}>
                     <InputGroup className="input-group-alternative">
@@ -576,9 +700,24 @@ class DashCategorias extends React.Component {
                   </FormGroup>
                   {/* /Imagen */}
 
+                  {/* Opciones Footer */}
                   <div className="modal-footer  pb-1">
                     <FormGroup row className={classnames("mt-3")}>
-                      {/* Botón agregar */}
+                      {/* Cambiar estado */}
+                      <Button
+                        color="danger"
+                        type="button"
+                        className="mr-5"
+                        onClick={() =>
+                          this.cambiarEstadoCategoria(this.state.nombreEstado)
+                        }
+                      >
+                        {this.state.nombreEstado === "Habilitada"
+                          ? "Inhabilitar"
+                          : "Habilitar"}
+                      </Button>
+                      {/* Cambiar estado */}
+                      {/* Botón editar */}
                       <Button color="success" type="submit">
                         Editar
                       </Button>
