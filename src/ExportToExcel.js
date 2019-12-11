@@ -16,20 +16,22 @@ class ExportToExcel extends Component {
         <table hidden={true} id="table-to-xls">
           <thead>
             <tr>
-              <th>User ID</th>
-              <th>ID</th>
-              <th>Title</th>
-              <th>Content</th>
+              <th>Nombre</th>
+              <th>Descripción</th>
+              <th>Categoría</th>
+              <th>Cantidad</th>
+              <th>Precio</th>
             </tr>
           </thead>
           <tbody>
-            {this.props.posts.map(post => {
+            {this.props.TableData.map(post => {
               return (
                 <tr key={post.id}>
-                  <td>{post.userId}</td>
-                  <td>{post.id}</td>
-                  <td>{post.title}</td>
-                  <td>{post.body}</td>
+                  <td>{post.nombre}</td>
+                  <td>{post.descripcion}</td>
+                  <td>{post.categoria.nombre}</td>
+                  <td>{post.cantidad}</td>
+                  <td>{post.precio}</td>
                 </tr>
               );
             })}

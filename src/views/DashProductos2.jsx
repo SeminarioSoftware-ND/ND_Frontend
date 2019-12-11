@@ -5,6 +5,7 @@ import Swal from "sweetalert2";
 import ReactTable from "react-table-v6";
 import "react-table-v6/react-table.css";
 import ExportToExcel from "../ExportToExcel";
+import Select from "react-select";
 
 // core components
 import DashNavbar from "components/Navbars/DashNavbar.jsx";
@@ -37,36 +38,68 @@ class DashProductos extends React.Component {
       nombre: "",
       descripcion: "",
       idCategoria: "",
-      categoriaNombre: "",
+      nombreCategoria: "",
       cantidad: "",
       precio: "",
       selectedFile: null,
       imagen: "",
+      imagenActual: "",
       laUrl: "",
-      estado: "",
+      nombreEstado: "",
+      source: null,
+      registradoPor: "",
       fechaCreacion: "",
-      posts: []
+      selectedOption: null,
+      TableData: [
+        {
+          id: "",
+          nombre: "",
+          descripcion: "",
+          categoria: [],
+          cantidad: "",
+          precio: "",
+          estado: "",
+          url: "",
+          registradoPor: ""
+        }
+      ],
+      lasCategorias: []
     };
     this.agregarProducto = this.agregarProducto.bind(this);
     this.editarProducto = this.editarProducto.bind(this);
-    this.inhabilitarProducto = this.inhabilitarProducto.bind(this);
-    this.cargarDatos = this.cargarDatos.bind(this);
+    this.cambiarEstadoProducto = this.cambiarEstadoProducto.bind(this);
+    // this.cargarDatos = this.cargarDatos.bind(this);
     this.handleChange = this.handleChange.bind(this);
+    this.handleChangeSelect = this.handleChangeSelect.bind(this);
   }
+  // Componente que carga al renderizar la página
   componentDidMount() {
     document.documentElement.scrollTop = 0;
     document.scrollingElement.scrollTop = 0;
     this.refs.main.scrollTop = 0;
 
-    const urlPrueba = "https://jsonplaceholder.typicode.com/posts";
-    fetch(urlPrueba, {
-      method: "GET"
-    })
-      .then(reponse => reponse.json())
-      .then(posts => {
-        this.setState({ posts: posts });
+    // Petición para cargar los productos
+    axiosConfig
+      .get("/listarProductos", { responseType: "json" })
+      .then(response => {
+        // Modificamos el estado del arreglo TableData para llenarlo con la consulta
+        this.setState({ TableData: response.data });
+        console.log(response.data);
+      });
+
+    // Petición para cargar las categorias para select
+    axiosConfig
+      .get("/categoriasProducto", { responseType: "json" })
+      .then(respuesta => {
+        if (respuesta.status === 200) {
+          this.setState({ lasCategorias: respuesta.data });
+          console.log(this.state.lasCategorias);
+        } else {
+          Swal.fire("¡Alerta!", respuesta.response.data.mensaje, "warning");
+        }
       });
   }
+
   // Función para desplegar los modales
   toggleModal(state) {
     this.setState({
@@ -74,8 +107,37 @@ class DashProductos extends React.Component {
     });
   }
 
-  cargarDatos(items) {
-    this.setState({ nombre: items });
+  cargarDatos(items, laImagen, categoriaNombre, idCategoria) {
+    this.setState({
+      nombre: items.nombre,
+      descripcion: items.descripcion,
+      idCategoria: idCategoria,
+      nombreCategoria: categoriaNombre,
+      cantidad: items.cantidad,
+      precio: items.precio,
+      nombreEstado: items.nombreEstado,
+      laUrl: items.url,
+      imagenActual: items.imagen
+    });
+
+    // Petición para cargar la imagen
+    axiosConfig
+      .get("/imagenProducto", {
+        params: {
+          url: laImagen
+        },
+        responseType: "arraybuffer"
+      })
+      .then(respuesta => {
+        // Convertir imagen para mostrarla en el modal
+        const base64 = btoa(
+          new Uint8Array(respuesta.data).reduce(
+            (data, byte) => data + String.fromCharCode(byte),
+            ""
+          )
+        );
+        this.setState({ source: "data:;base64," + base64 });
+      });
   }
 
   // Evento para atrapar el cambio en los inputs
@@ -88,6 +150,11 @@ class DashProductos extends React.Component {
     });
   }
 
+  handleChangeSelect = selectedOption => {
+    this.setState({ selectedOption });
+    console.log("Opcion seleccionada: " + selectedOption.value);
+  };
+
   // Evento para atrapar la imagen seleccionada
   onChangeHandler = event => {
     this.setState({
@@ -96,34 +163,13 @@ class DashProductos extends React.Component {
     });
   };
 
+  // Función para agregar producto
   agregarProducto(e) {
     e.preventDefault();
     console.log("Click Agregar");
+    console.log(this.state.nombreCategoria);
 
-    let newDate = new Date();
-    let fecha = newDate.getDate();
-
-    // Crear JSON para enviar datos
-    // let datos = {
-    //   nombre: this.state.nombre,
-    //   descripcion: this.state.descripcion,
-    //   categoriaNombre: this.state.categoriaNombre,
-    //   cantidad: this.state.cantidad,
-    //   precio: this.state.precio,
-    //   fechaCreacion: fecha
-    // };
-
-    const datos = {};
-    datos.nombre = this.state.nombre;
-    datos.descripcion = this.state.descripcion;
-    datos.categoriaNombre = this.state.categoriaNombre;
-    datos.cantidad = this.state.cantidad;
-    datos.precio = this.state.precio;
-    datos.fechaCreacion = fecha;
-
-    // Si el usuario seleccionó una imagen
     if (this.state.selectedFile !== null) {
-      console.log("Imprimiendo con imagen");
       // Creamos una variable para recoger la imagen
       const data = new FormData();
       data.append(
@@ -132,22 +178,30 @@ class DashProductos extends React.Component {
         this.state.selectedFile.name
       );
 
-      // Realizamos la petición para la imagen
+      // Realizamos la petición para insertar la imagen
       axiosConfig
         .post("/productoImagen", data)
         .then(respuesta => {
           // Si se sube la imagen, almacenamos el producto
           if (respuesta.status === 200) {
-            // Creamos nuestro JSON para insertar todo
-            datos.imagen = respuesta.data.imagen;
+            // Creamos nuestro JSON para insertar los datos
+            let datos = {
+              nombre: this.state.nombre,
+              descripcion: this.state.descripcion,
+              categoria: this.state.selectedOption.value,
+              cantidad: this.state.cantidad,
+              precio: this.state.precio,
+              imagen: respuesta.data.imagen
+            };
 
-            // Realizamos la petición de almacenar producto
+            // Realizamos la petición para almcenar el producto
             axiosConfig
-              .post("/agregarProducto", datos)
+              .post("/crearProducto", datos)
               .then(respuesta2 => {
                 // Si se almacenaron los datos
                 if (respuesta2.status === 200) {
                   Swal.fire("¡Agregado!", respuesta2.data.mensaje, "success");
+                  window.location = "/admin/productos";
                 } else {
                   Swal.fire(
                     "¡Alerta!",
@@ -156,75 +210,302 @@ class DashProductos extends React.Component {
                   );
                 }
               })
-              // Error de ingresar Producto
+              // Error de ingresar producto
               .catch(error => {
-                Swal.fire("¡Alerta!", error.response.data.mensaje, "warning");
+                Swal.fire("¡Error!", error.response.data.mensaje, "warning");
               });
           }
         })
         // Error de imagen
         .catch(error => {
-          Swal.fire("¡Alerta!", error.response.data.mensaje, "warning");
+          Swal.fire("¡Error!", error.response.data.mensaje, "warning");
         });
     }
-    // Si no seleccionó una imagen
+    // Si no se seleccionó la imagen
     else {
-      console.log("Imprimiendo sin imagen " + datos);
-      // Petición de almacenar usuario
+      // Creamos nuestro JSON para insertar los datos
+      let datos = {
+        nombre: this.state.nombre,
+        descripcion: this.state.descripcion,
+        categoria: this.state.selectedOption.value,
+        cantidad: this.state.cantidad,
+        precio: this.state.precio
+      };
+
+      // Realizamos la petición para almcenar el producto
       axiosConfig
-        .post("/agregarProducto", datos)
+        .post("/crearProducto", datos)
         .then(respuesta2 => {
           // Si se almacenaron los datos
           if (respuesta2.status === 200) {
             Swal.fire("¡Agregado!", respuesta2.data.mensaje, "success");
+            window.location = "/admin/productos";
           } else {
             Swal.fire("¡Alerta!", respuesta2.response.data.mensaje, "warning");
           }
         })
-        // Error de ingresar Producto
+        // Error de ingresar producto
         .catch(error => {
-          Swal.fire("¡Alerta!", error.response.data.mensaje, "warning");
+          Swal.fire("¡Error!", error.response.data.mensaje, "warning");
         });
     }
   }
 
-  editarProducto(id) {
-    console.log("id", id);
+  // Función para editar producto
+  editarProducto(e) {
+    e.preventDefault();
+
+    // Si el usuario seleccionó una imagen
+    if (this.state.selectedFile !== null) {
+      // Creamos una variable para recoger la imagen
+      const data = new FormData();
+      data.append(
+        "file",
+        this.state.selectedFile,
+        this.state.selectedFile.name
+      );
+
+      // Realizamos la petición para insertar la imagen
+      axiosConfig
+        .post("/productoImagen", data, {
+          params: {
+            url: this.state.laUrl
+          }
+        })
+        .then(respuesta => {
+          // Si se sube la imagen, almacenamos el producto
+          if (respuesta.status === 200) {
+            // Creamos nuestro JSON para insertar los datos
+            var datos = {};
+            if (this.state.selectedOption == null) {
+              datos = {
+                nombre: this.state.nombre,
+                descripcion: this.state.descripcion,
+                categoria: this.state.idCategoria,
+                cantidad: this.state.cantidad,
+                precio: this.state.precio,
+                imagen: respuesta.data.imagen,
+                imagenActual: this.state.imagenActual
+              };
+            } else {
+              datos = {
+                nombre: this.state.nombre,
+                descripcion: this.state.descripcion,
+                categoria: this.state.selectedOption.value,
+                cantidad: this.state.cantidad,
+                precio: this.state.precio,
+                imagen: respuesta.data.imagen,
+                imagenActual: this.state.imagenActual
+              };
+            }
+
+            // Realizamos la petición para actualizar el producto
+            axiosConfig
+              .post(`/actualizarProducto/${this.state.laUrl}`, datos)
+              .then(respuesta2 => {
+                // Si se almacenaron los datos
+                if (respuesta2.status === 200) {
+                  Swal.fire(
+                    "¡Actualizado!",
+                    respuesta2.data.mensaje,
+                    "success"
+                  );
+                  window.location = "/admin/productos";
+                } else {
+                  Swal.fire(
+                    "¡Alerta!",
+                    respuesta2.response.data.mensaje,
+                    "warning"
+                  );
+                }
+              })
+              // Error de ingresar producto
+              .catch(error => {
+                Swal.fire("¡Error!", error.response.data.mensaje, "warning");
+              });
+          }
+        })
+        // Error de imagen
+        .catch(error => {
+          Swal.fire("¡Error!", error.response.data.mensaje, "warning");
+        });
+    }
+    // Si no se seleccionó la imagen
+    else {
+      // Creamos nuestro JSON para insertar los datos
+      var datos = {};
+      if (this.state.selectedOption == null) {
+        datos = {
+          nombre: this.state.nombre,
+          descripcion: this.state.descripcion,
+          categoria: this.state.idCategoria,
+          cantidad: this.state.cantidad,
+          precio: this.state.precio,
+          imagen: this.state.imagenActual,
+          imagenActual: this.state.imagenActual
+        };
+      } else {
+        datos = {
+          nombre: this.state.nombre,
+          descripcion: this.state.descripcion,
+          categoria: this.state.selectedOption.value,
+          cantidad: this.state.cantidad,
+          precio: this.state.precio,
+          imagen: this.state.imagenActual,
+          imagenActual: this.state.imagenActual
+        };
+      }
+
+      // Realizamos la petición para actualizar el producto
+      axiosConfig
+        .post(`/actualizarProducto/${this.state.laUrl}`, datos)
+        .then(respuesta2 => {
+          // Si se almacenaron los datos
+          if (respuesta2.status === 200) {
+            Swal.fire("¡Actualizado!", respuesta2.data.mensaje, "success");
+            window.location = "/admin/productos";
+          } else {
+            Swal.fire("¡Alerta!", respuesta2.response.data.mensaje, "warning");
+          }
+        })
+        // Error de ingresar producto
+        .catch(error => {
+          Swal.fire("¡Error!", error.response.data.mensaje, "warning");
+        });
+    }
   }
 
-  inhabilitarProducto(e) {
-    e.preventDefault();
+  cambiarEstadoProducto(estado) {
+    console.log(estado);
+    console.log(this.state.laUrl);
+    // Está Inhabilitado
+    if (estado === "Inhabilitado") {
+      Swal.fire({
+        title: "¿Desea habilitar el producto?",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Habilitar"
+      }).then(result => {
+        if (result.value) {
+          // Realizamos la petición
+          axiosConfig
+            .post(`/habilitarProducto/${this.state.laUrl}`)
+            .then(respuesta => {
+              if (respuesta.status === 200) {
+                Swal.fire("Habilitado", respuesta.data.mensaje, "success");
+                window.location = "/admin/productos";
+              } else {
+                Swal.fire(
+                  "¡Alerta!",
+                  respuesta.response.data.mensaje,
+                  "warning"
+                );
+              }
+            })
+            .catch(error => {
+              Swal.fire("¡Error!", error.response.data.mensaje, "warning");
+            });
+        }
+      });
+    }
+    // Está habilitado
+    else {
+      Swal.fire({
+        title: "¿Desea inhabilitar el producto?",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Inhabilitar"
+      }).then(result => {
+        if (result.value) {
+          // Realizamos la petición
+          axiosConfig
+            .post(`/inhabilitarProducto/${this.state.laUrl}`)
+            .then(respuesta => {
+              if (respuesta.status === 200) {
+                Swal.fire("Inhabilitado", respuesta.data.mensaje, "success");
+                window.location = "/admin/productos";
+              } else {
+                Swal.fire(
+                  "¡Alerta!",
+                  respuesta.response.data.mensaje,
+                  "warning"
+                );
+              }
+            })
+            .catch(error => {
+              Swal.fire("¡Error!", error.response.data.mensaje, "warning");
+            });
+        }
+      });
+    }
   }
 
   render() {
+    const { selectedOption } = this.state;
+    // Obtenemos por destructuring el arreglo con los datos
+    const { TableData } = this.state;
+    // Establecemos las columnas de nuestra tabla
     const columns = [
       {
-        Header: "User ID",
-        accessor: "userId",
+        Header: "Id",
+        accessor: "_id",
         style: {
           textAlign: "center"
         },
         width: 100,
         maxWidth: 100,
+        minWidth: 100,
+        show: false
+      },
+      {
+        Header: "Nombre",
+        accessor: "nombre",
+        width: 200,
+        maxWidth: 200,
         minWidth: 100
       },
       {
-        Header: "ID",
-        accessor: "id",
-        style: {
-          textAlign: "center"
-        },
-        width: 100,
-        maxWidth: 100,
+        Header: "Descripción",
+        accessor: "descripcion"
+      },
+      {
+        Header: "Categoría",
+        accessor: "categoria._id",
+        show: false
+      },
+      {
+        Header: "Categoría",
+        accessor: "categoria.nombre"
+      },
+      {
+        Header: "Cantidad",
+        accessor: "cantidad",
+        width: 50,
+        maxWidth: 50,
         minWidth: 100
       },
       {
-        Header: "Title",
-        accessor: "title"
+        Header: "Precio",
+        accessor: "precio",
+        width: 50,
+        maxWidth: 50,
+        minWidth: 100
       },
       {
-        Header: "Content",
-        accessor: "body"
+        Header: "Estado",
+        accessor: "nombreEstado",
+        width: 120,
+        maxWidth: 120,
+        minWidth: 100
+      },
+      {
+        Header: "URL",
+        accessor: "url",
+        show: false
       },
       {
         Header: "Opciones",
@@ -238,21 +519,16 @@ class DashProductos extends React.Component {
                 type="button"
                 size="sm"
                 onClick={() => {
-                  // this.editarProducto(props.original.id);
-                  this.cargarDatos(props.original.id);
                   this.toggleModal("editarProductoModal");
+                  this.cargarDatos(
+                    props.original,
+                    props.original.imagen,
+                    props.original.categoria.nombre,
+                    props.original.categoria._id
+                  );
                 }}
               >
                 Editar
-              </Button>
-              <Button
-                className="btn-icon"
-                color="danger"
-                type="button"
-                size="sm"
-                onClick={() => this.toggleModal("agregarProductoModal")}
-              >
-                Eliminar
               </Button>
             </div>
           );
@@ -262,8 +538,8 @@ class DashProductos extends React.Component {
         style: {
           textAlign: "center"
         },
-        width: 200,
-        maxWidth: 200,
+        width: 100,
+        maxWidth: 100,
         minWidth: 100
       }
     ];
@@ -287,31 +563,7 @@ class DashProductos extends React.Component {
                   </Col>
                 </Row>
               </section>
-              {/* Buscar */}
-              <Row>
-                <Col lg="10">
-                  <FormGroup>
-                    <InputGroup className="mb-4">
-                      <InputGroupAddon addonType="prepend">
-                        <InputGroupText>
-                          <i className="ni ni-zoom-split-in" />
-                        </InputGroupText>
-                      </InputGroupAddon>
-                      <Input
-                        placeholder="Buscar producto"
-                        type="text"
-                        onFocus={e => this.setState({ searchFocused: true })}
-                        onBlur={e => this.setState({ searchFocused: false })}
-                      />
-                    </InputGroup>
-                  </FormGroup>
-                </Col>
-                <Col lg="2" className="mb-3 align-items-center text-center">
-                  <Button className="btn-icon" color="default" type="button">
-                    Buscar
-                  </Button>
-                </Col>
-              </Row>
+
               {/* AGREGAR PRODUCTO */}
               {/* Botón Agregar */}
               <Row>
@@ -404,21 +656,10 @@ class DashProductos extends React.Component {
                             Categoría
                           </Label>
                           <Col sm={10}>
-                            <InputGroup className="input-group-alternative">
-                              <Input
-                                id="categoriaPro"
-                                type="select"
-                                name="categoria"
-                                required
-                                onChange={this.handleChange}
-                              >
-                                <option>1</option>
-                                <option>2</option>
-                                <option>3</option>
-                                <option>4</option>
-                                <option>5</option>
-                              </Input>
-                            </InputGroup>
+                            <Select
+                              options={this.state.lasCategorias}
+                              onChange={this.handleChangeSelect}
+                            />
                           </Col>
                         </FormGroup>
                         {/* /Categoria */}
@@ -511,10 +752,15 @@ class DashProductos extends React.Component {
               <section>
                 <ReactTable
                   columns={columns}
-                  data={this.state.posts}
+                  data={TableData}
                   filterable
                   defaultPageSize={10}
                   noDataText={"No hay datos disponibles"}
+                  previousText={"Anterior"}
+                  nextText={"Siguiente"}
+                  pageText={"Página"}
+                  ofText={"de"}
+                  rowsText={"registros"}
                 >
                   {(state, Productos, instance) => {
                     this.reactTable = state.pageRows.map(post => {
@@ -523,7 +769,10 @@ class DashProductos extends React.Component {
                     return (
                       <div>
                         {Productos()}
-                        <ExportToExcel posts={this.reactTable} />
+                        <ExportToExcel
+                          TableData={this.reactTable}
+                          key={TableData.id}
+                        />
                       </div>
                     );
                   }}
@@ -561,6 +810,19 @@ class DashProductos extends React.Component {
               <CardBody className="px-lg-5 py-lg-5">
                 {/* Formulario */}
                 <Form onSubmit={this.editarProducto}>
+                  {/* Imagen Actual */}
+                  <div>
+                    <FormGroup row className="justify-content-center">
+                      <img
+                        className="center-block"
+                        alt="..."
+                        src={this.state.source}
+                        style={{ width: "210px" }}
+                      />
+                    </FormGroup>
+                  </div>
+                  {/* Imagen Actual */}
+
                   {/* Nombre */}
                   <FormGroup row className={classnames("mb-3")}>
                     <Label for="nombrePro" sm={2}>
@@ -595,7 +857,7 @@ class DashProductos extends React.Component {
                           rows="3"
                           type="textarea"
                           name="descripcion"
-                          //value=""
+                          value={this.state.descripcion}
                           required
                           onChange={this.handleChange}
                         />
@@ -605,28 +867,25 @@ class DashProductos extends React.Component {
                   {/* /Descripcion */}
 
                   {/* Categoría */}
+
+                  {/* Categoría */}
                   <FormGroup row className={classnames("mb-3")}>
                     <Label for="categoriaPro" sm={2}>
                       Categoría
                     </Label>
                     <Col sm={10}>
-                      <InputGroup className="input-group-alternative">
-                        <Input
-                          id="categoriaPro"
-                          type="select"
-                          name="categoria"
-                          required
-                          onChange={this.handleChange}
-                        >
-                          <option>1</option>
-                          <option>2</option>
-                          <option>3</option>
-                          <option>4</option>
-                          <option>5</option>
-                        </Input>
-                      </InputGroup>
+                      <Select
+                        options={this.state.lasCategorias}
+                        onChange={this.handleChangeSelect}
+                        value={{
+                          label: this.state.nombreCategoria,
+                          value: this.state.idCategoria
+                        }}
+                      />
                     </Col>
                   </FormGroup>
+                  {/* /Categoria */}
+
                   {/* /Categoria */}
 
                   {/* Cantidad */}
@@ -644,7 +903,7 @@ class DashProductos extends React.Component {
                           min="1"
                           pattern="^[0-9]"
                           name="cantidad"
-                          //value=""
+                          value={this.state.cantidad}
                           required
                           onChange={this.handleChange}
                         />
@@ -668,7 +927,7 @@ class DashProductos extends React.Component {
                           min="0.01"
                           pattern="^[0-9]"
                           name="precio"
-                          //value=""
+                          value={this.state.precio}
                           required
                           onChange={this.handleChange}
                         />
@@ -676,6 +935,24 @@ class DashProductos extends React.Component {
                     </Col>
                   </FormGroup>
                   {/* /Precio */}
+
+                  {/* Estado */}
+                  <FormGroup row className={classnames("mb-3")}>
+                    <Label for="estadoCat" sm={2}>
+                      Estado
+                    </Label>
+                    <Col sm={10}>
+                      <InputGroup className="form-control-alternative">
+                        <Input
+                          id="estadoCat"
+                          type="text"
+                          value={this.state.nombreEstado}
+                          readOnly
+                        />
+                      </InputGroup>
+                    </Col>
+                  </FormGroup>
+                  {/* Estado */}
 
                   {/* Imagen */}
                   <FormGroup row className={classnames("mb-3")}>
@@ -690,13 +967,32 @@ class DashProductos extends React.Component {
                   </FormGroup>
                   {/* /Imagen */}
 
+                  {/* Opciones de footer */}
                   <div className="modal-footer  pb-1">
                     <FormGroup row className={classnames("mt-3")}>
+                      {/* Cambiar estado */}
+                      <Button
+                        color="danger"
+                        type="button"
+                        className="mr-5 float-left"
+                        onClick={() =>
+                          this.cambiarEstadoProducto(this.state.nombreEstado)
+                        }
+                      >
+                        {this.state.nombreEstado === "Habilitado"
+                          ? "Inhabilitar"
+                          : "Habilitar"}
+                      </Button>
+
+                      {/* Cambiar estado */}
                       {/* Botón agregar */}
+
                       <Button color="success" type="submit">
                         Editar
                       </Button>
+
                       {/* Botón cerrar */}
+
                       <Button
                         className="ml-auto"
                         color="link"
