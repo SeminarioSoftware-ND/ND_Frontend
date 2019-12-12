@@ -100,11 +100,11 @@ class DashNavbar extends React.Component {
                       <span className="nav-link-inner--text">Nosotros</span>
                     </DropdownToggle>
                     <DropdownMenu>
-                      <DropdownItem to="/usuarioPerfil" tag={Link}>
+                      <DropdownItem to="/acerca" tag={Link}>
                         <i className="ni ni-single-copy-04 d-lg-none mr-1" />
                         <span className="nav-link-inner--text">Acerca</span>
                       </DropdownItem>
-                      <DropdownItem to="/impresiones" tag={Link}>
+                      <DropdownItem to="/contacto" tag={Link}>
                         <i className="ni ni-single-copy-04 d-lg-none mr-1" />
                         <span className="nav-link-inner--text">
                           Contáctanos

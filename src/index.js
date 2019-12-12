@@ -38,6 +38,7 @@ import DashProductos from "views/DashProductos2.jsx";
 import UsuarioPerfil from "views/perfilUsuario.jsx";
 import Productos from "views/productos.jsx";
 import Carrito from "views/carrito.jsx";
+import Contacto from "views/contacto.jsx";
 
 ReactDOM.render(
   <BrowserRouter>
@@ -63,9 +64,10 @@ ReactDOM.render(
         exact
         render={props => <Productos {...props} />}
       />
-      <Route path="/carrito" exact render={props => <Carrito {...props} />} />
 
       {/* /TIENDA */}
+      <Route path="/carrito" exact render={props => <Carrito {...props} />} />
+      <Route path="/contacto" exact render={props => <Contacto {...props} />} />
 
       {/* DASHBOARD / ADMIN */}
       <Route path="/admin" exact render={props => <IndexDash {...props} />} />
