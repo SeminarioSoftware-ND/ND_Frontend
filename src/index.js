@@ -39,6 +39,7 @@ import UsuarioPerfil from "views/perfilUsuario.jsx";
 import Productos from "views/productos.jsx";
 import Carrito from "views/carrito.jsx";
 import Contacto from "views/contacto.jsx";
+import Acerca from "views/acerca.jsx";
 
 ReactDOM.render(
   <BrowserRouter>
@@ -68,6 +69,7 @@ ReactDOM.render(
       {/* /TIENDA */}
       <Route path="/carrito" exact render={props => <Carrito {...props} />} />
       <Route path="/contacto" exact render={props => <Contacto {...props} />} />
+      <Route path="/acercade" exact render={props => <Acerca {...props} />} />
 
       {/* DASHBOARD / ADMIN */}
       <Route path="/admin" exact render={props => <IndexDash {...props} />} />
