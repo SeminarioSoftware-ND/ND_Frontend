@@ -40,6 +40,7 @@ import Productos from "views/productos.jsx";
 import Carrito from "views/carrito.jsx";
 import Contacto from "views/contacto.jsx";
 import Acerca from "views/acerca.jsx";
+import Orden from "views/orden.jsx";
 
 ReactDOM.render(
   <BrowserRouter>
@@ -61,10 +62,12 @@ ReactDOM.render(
       <Route path="/" exact render={props => <Index {...props} />} />
 
       <Route
-        path="/productos"
+        path="/producto/:url"
         exact
         render={props => <Productos {...props} />}
       />
+
+      <Route path="/ordenCompra" exact render={props => <Orden {...props} />} />
 
       {/* /TIENDA */}
       <Route path="/carrito" exact render={props => <Carrito {...props} />} />

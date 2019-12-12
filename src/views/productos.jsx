@@ -37,52 +37,142 @@ class Productos extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      iconTabs: 1,
-      plainTabs: 1
+      losProductos: [],
+      source: null,
+      id: "",
+      nombre: "",
+      descripcion: "",
+      imagen: "",
+      precio: "",
+      cart: []
     };
     this.agregarACarrito = this.agregarACarrito.bind(this);
+    this.cargarImagen = this.cargarImagen.bind(this);
+    this.cargarDatos = this.cargarDatos.bind(this);
+    this.handleChange = this.handleChange.bind(this);
   }
 
+  // Método para cargar los componentes al renderizar la página
   componentDidMount() {
     document.documentElement.scrollTop = 0;
     document.scrollingElement.scrollTop = 0;
     this.refs.main.scrollTop = 0;
+
+    // Obtenemos la url que viene del indexNavbar
+    const { url } = this.props.match.params;
+    const { fromNotification } = this.props.location.state;
+
+    // Petición para cargar los productos
+    axiosConfig
+      .get("/listarProductoCategoria/", {
+        params: {
+          url: url
+        }
+      })
+      .then(response => {
+        this.setState({ losProductos: response.data });
+      })
+      .catch(error => {
+        console.log(error.response.data.error);
+      });
+
+    // LLenamos el carrito con los elementos que se agregó con LocalStorage
+    this.setState({ cart: JSON.parse(localStorage.getItem("products")) });
+
+    console.log({ cart: JSON.parse(localStorage.getItem("products")) });
   }
 
-  // Evento para desplegar lo contenido en las tabs y modals
-  toggleNavs = (e, state, index) => {
-    e.preventDefault();
-    // Si es "" es un modal
-    if (index == "") {
-      this.setState({
-        [state]: !this.state[state]
-      });
-    }
-    // Si trae un index es para desplegar un tabs
-    else {
-      this.setState({
-        [state]: index
-      });
-    }
-    // this.setState({
-    //   [state]: index,
-    //   [state]: !this.state[state]
-    // });
-  };
+  // Evento para atrapar el cambio en los inputs
+  handleChange(e) {
+    // Obtenemos por destructuring lo que está en los Inputs
+    const { name, value } = e.target;
+    // Actualizamos su estado
+    this.setState({
+      [name]: value
+    });
+  }
 
-  agregarACarrito(e) {
+  // Método para cargar la Imagen
+  cargarImagen(nombreImagen) {
+    axiosConfig
+      .get("/imagenProducto", {
+        params: {
+          url: nombreImagen
+        },
+        responseType: "arraybuffer"
+      })
+      .then(respuesta => {
+        // Convertir imagen para mostrarla en el modal
+        const base64 = btoa(
+          new Uint8Array(respuesta.data).reduce(
+            (data, byte) => data + String.fromCharCode(byte),
+            ""
+          )
+        );
+        this.setState({ source: "data:;base64," + base64 });
+      });
+  }
+
+  // Método para cargar los datos al modal
+  cargarDatos(losDatos) {
+    this.setState({
+      id: losDatos._id,
+      nombre: losDatos.nombre,
+      descripcion: losDatos.descripcion,
+      precio: losDatos.precio,
+      imagen: losDatos.imagen
+    });
+    this.cargarImagen(this.state.imagen);
+  }
+
+  // Método para agregar un producto seleccionado al LocalStorage
+  agregarACarrito(elProducto, cantidad) {
+    // Creamos el arreglo donde se iran almecando temporalmente los productos
+    let products = [];
+
+    // Si ya existen productos en el carrito, los mandamos a traer
+    // y lo agregamos al arreglo interno
+    if (localStorage.getItem("products")) {
+      products = JSON.parse(localStorage.getItem("products"));
+    }
+    products.push({
+      productoId: elProducto._id,
+      nombre: elProducto.nombre,
+      precio: elProducto.precio,
+      cantidad: cantidad
+    });
+    localStorage.setItem(`products`, JSON.stringify(products));
+    console.log("agregado");
+
     // Mensaje de confirmación
     Swal.fire("¡Agregado!", "Producto agregado al carrito", "success");
-    // Cerrar el modal después de agregar
-    this.toggleNavs(e, "mostrarProductoModal", "");
   }
 
-  //   // Función para desplegar los modales
-  //   toggleModal(state) {
-  //     this.setState({
-  //       [state]: !this.state[state]
-  //     });
-  //   }
+  agregarACarritoModal(id, nombre, precio, cantidad) {
+    let products = [];
+    if (localStorage.getItem("products")) {
+      products = JSON.parse(localStorage.getItem("products"));
+    }
+    products.push({
+      productoId: id,
+      nombre: nombre,
+      precio: precio,
+      cantidad: parseInt(cantidad)
+    });
+    localStorage.setItem("products", JSON.stringify(products));
+    console.log("agregado");
+
+    // Mensaje de confirmación
+    Swal.fire("¡Agregado!", "Producto agregado al carrito", "success");
+  }
+
+  // Evento para desplegar los modales
+  toggleModal = state => {
+    this.setState({
+      [state]: !this.state[state]
+    });
+  };
+
   render() {
     return (
       <>
@@ -108,327 +198,73 @@ class Productos extends React.Component {
                 </Row>
               </section>
 
-              {/* Cards de productos */}
-              <Row>
-                <Col lg="10">
-                  <FormGroup
-                    className={classnames({
-                      focused: this.state.searchFocused
-                    })}
-                  >
-                    <InputGroup className="mb-4">
-                      <InputGroupAddon addonType="prepend">
-                        <InputGroupText>
-                          <i className="ni ni-zoom-split-in" />
-                        </InputGroupText>
-                      </InputGroupAddon>
-                      <Input
-                        placeholder="Buscar producto"
-                        type="text"
-                        onFocus={e => this.setState({ searchFocused: true })}
-                        onBlur={e => this.setState({ searchFocused: false })}
-                      />
-                    </InputGroup>
-                  </FormGroup>
-                </Col>
-                <Col lg="2" className="mb-3 align-items-center text-center">
-                  <Button className="btn-icon" color="default" type="button">
-                    Buscar
-                  </Button>
-                </Col>
-              </Row>
+              <section className="section">
+                <Container>
+                  <Row className="justify-content-center">
+                    <Col lg="12">
+                      <Row className="row-grid">
+                        {this.state.losProductos.map(producto => {
+                          return (
+                            <Col lg="4">
+                              <Card
+                                className="card-lift--hover shadow border-0 mb-4"
+                                onClick={() => {
+                                  this.cargarImagen(producto.imagen);
+                                }}
+                              >
+                                <CardImg
+                                  top
+                                  width="100%"
+                                  src={this.state.source}
+                                  alt="Imagen producto"
+                                />
+                                <CardImgOverlay className="align-items-between">
+                                  <Button
+                                    className="btn-icon btn-3"
+                                    color="success"
+                                    type="button"
+                                    size="sm"
+                                    onClick={() =>
+                                      this.agregarACarrito(producto, 1)
+                                    }
+                                  >
+                                    <span className="btn-inner--icon">
+                                      <i className="ni ni-cart" />
+                                    </span>
+                                  </Button>
+                                  <Button
+                                    className="btn-icon btn-3"
+                                    color="danger"
+                                    type="button"
+                                    size="sm"
+                                    onClick={() => {
+                                      this.toggleModal("mostrarProductoModal");
+                                      this.cargarDatos(producto);
+                                    }}
+                                  >
+                                    <span className="btn-inner--icon">
+                                      <i className="ni ni-zoom-split-in" />
+                                    </span>
+                                  </Button>
+                                </CardImgOverlay>
 
-              <h3 className="h4 text-success font-weight-bold mt-4">
-                CATEGORÍAS
-              </h3>
-
-              <Row className="justify-content-center">
-                <Col lg="12">
-                  {/* Tabs with icons */}
-                  <div className="nav-wrapper">
-                    <Nav
-                      className="nav-fill flex-column flex-md-row"
-                      id="tabs-icons-text"
-                      pills
-                      role="tablist"
-                    >
-                      <NavItem>
-                        <NavLink
-                          aria-selected={this.state.iconTabs === 1}
-                          className={classnames("mb-sm-3 mb-md-0", {
-                            active: this.state.iconTabs === 1
-                          })}
-                          onClick={e => this.toggleNavs(e, "iconTabs", 1)}
-                          href="#pablo"
-                          role="tab"
-                        >
-                          <i className="ni ni-book-bookmark mr-2" />
-                          Todos
-                        </NavLink>
-                      </NavItem>
-                      <NavItem>
-                        <NavLink
-                          aria-selected={this.state.iconTabs === 2}
-                          className={classnames("mb-sm-3 mb-md-0", {
-                            active: this.state.iconTabs === 2
-                          })}
-                          onClick={e => this.toggleNavs(e, "iconTabs", 2)}
-                          href="#pablo"
-                          role="tab"
-                        >
-                          <i className="ni ni-ruler-pencil mr-2" />
-                          Lápices
-                        </NavLink>
-                      </NavItem>
-                      <NavItem>
-                        <NavLink
-                          aria-selected={this.state.iconTabs === 3}
-                          className={classnames("mb-sm-3 mb-md-0", {
-                            active: this.state.iconTabs === 3
-                          })}
-                          onClick={e => this.toggleNavs(e, "iconTabs", 3)}
-                          href="#pablo"
-                          role="tab"
-                        >
-                          <i className="ni ni-calendar-grid-58 mr-2" />
-                          Cuadernos
-                        </NavLink>
-                      </NavItem>
-                    </Nav>
-                  </div>
-
-                  {/* ESTOS SON LAS COSAS QUE SE ABREN EN EL TAB */}
-                  <div>
-                    <div className="mt-4">
-                      <TabContent activeTab={"iconTabs" + this.state.iconTabs}>
-                        <TabPane tabId="iconTabs1">
-                          <Container>
-                            <Row className="justify-content-center">
-                              <Col lg="12">
-                                <Row className="row-grid">
-                                  {/* CADA TARJETA DE PRODUCTO */}
-                                  <Col lg="4">
-                                    <Card className="card-lift--hover shadow border-0 mb-4">
-                                      <CardImg
-                                        top
-                                        width="100%"
-                                        src={require("assets/img/theme/team-1-800x800.jpg")}
-                                        alt="Imagen producto"
-                                      />
-                                      <CardImgOverlay className="align-items-between">
-                                        <Button
-                                          className="btn-icon btn-3"
-                                          color="success"
-                                          type="button"
-                                          size="sm"
-                                          onClick={this.agregarACarrito}
-                                        >
-                                          <span className="btn-inner--icon">
-                                            <i className="ni ni-cart" />
-                                          </span>
-                                        </Button>
-                                        <Button
-                                          className="btn-icon btn-3"
-                                          color="danger"
-                                          type="button"
-                                          size="sm"
-                                          onClick={e =>
-                                            this.toggleNavs(
-                                              e,
-                                              "mostrarProductoModal",
-                                              ""
-                                            )
-                                          }
-                                        >
-                                          <span className="btn-inner--icon">
-                                            <i className="ni ni-zoom-split-in" />
-                                          </span>
-                                        </Button>
-                                      </CardImgOverlay>
-
-                                      <CardBody className="py-2">
-                                        <h6 className="text-primary text-uppercase">
-                                          Nombre del producto
-                                        </h6>
-                                        <p className="description mt-3">
-                                          L.150.00
-                                        </p>
-                                      </CardBody>
-                                    </Card>
-                                  </Col>
-                                </Row>
-                                <Row className="row-grid">
-                                  <Col lg="4">
-                                    <Card className="card-lift--hover shadow border-0">
-                                      <CardBody className="py-5">
-                                        <div className="icon icon-shape icon-shape-primary rounded-circle mb-4">
-                                          <i className="ni ni-check-bold" />
-                                        </div>
-                                        <h6 className="text-primary text-uppercase">
-                                          Download Argon
-                                        </h6>
-                                        <p className="description mt-3">
-                                          Argon is a great free UI package based
-                                          on Bootstrap 4 that includes the most
-                                          important components and features.
-                                        </p>
-                                        <div>
-                                          <Badge
-                                            color="primary"
-                                            pill
-                                            className="mr-1"
-                                          >
-                                            design
-                                          </Badge>
-                                          <Badge
-                                            color="primary"
-                                            pill
-                                            className="mr-1"
-                                          >
-                                            system
-                                          </Badge>
-                                          <Badge
-                                            color="primary"
-                                            pill
-                                            className="mr-1"
-                                          >
-                                            creative
-                                          </Badge>
-                                        </div>
-                                        <Button
-                                          className="mt-4"
-                                          color="primary"
-                                          href="#pablo"
-                                          onClick={e => e.preventDefault()}
-                                        >
-                                          Learn more
-                                        </Button>
-                                      </CardBody>
-                                    </Card>
-                                  </Col>
-                                  <Col lg="4">
-                                    <Card className="card-lift--hover shadow border-0">
-                                      <CardBody className="py-5">
-                                        <div className="icon icon-shape icon-shape-success rounded-circle mb-4">
-                                          <i className="ni ni-istanbul" />
-                                        </div>
-                                        <h6 className="text-success text-uppercase">
-                                          Build Something
-                                        </h6>
-                                        <p className="description mt-3">
-                                          Argon is a great free UI package based
-                                          on Bootstrap 4 that includes the most
-                                          important components and features.
-                                        </p>
-                                        <div>
-                                          <Badge
-                                            color="success"
-                                            pill
-                                            className="mr-1"
-                                          >
-                                            business
-                                          </Badge>
-                                          <Badge
-                                            color="success"
-                                            pill
-                                            className="mr-1"
-                                          >
-                                            vision
-                                          </Badge>
-                                          <Badge
-                                            color="success"
-                                            pill
-                                            className="mr-1"
-                                          >
-                                            success
-                                          </Badge>
-                                        </div>
-                                        <Button
-                                          className="mt-4"
-                                          color="success"
-                                          href="#pablo"
-                                          onClick={e => e.preventDefault()}
-                                        >
-                                          Learn more
-                                        </Button>
-                                      </CardBody>
-                                    </Card>
-                                  </Col>
-                                  <Col lg="4">
-                                    <Card className="card-lift--hover shadow border-0">
-                                      <CardBody className="py-5">
-                                        <div className="icon icon-shape icon-shape-warning rounded-circle mb-4">
-                                          <i className="ni ni-planet" />
-                                        </div>
-                                        <h6 className="text-warning text-uppercase">
-                                          Prepare Launch
-                                        </h6>
-                                        <p className="description mt-3">
-                                          Argon is a great free UI package based
-                                          on Bootstrap 4 that includes the most
-                                          important components and features.
-                                        </p>
-                                        <div>
-                                          <Badge
-                                            color="warning"
-                                            pill
-                                            className="mr-1"
-                                          >
-                                            marketing
-                                          </Badge>
-                                          <Badge
-                                            color="warning"
-                                            pill
-                                            className="mr-1"
-                                          >
-                                            product
-                                          </Badge>
-                                          <Badge
-                                            color="warning"
-                                            pill
-                                            className="mr-1"
-                                          >
-                                            launch
-                                          </Badge>
-                                        </div>
-                                        <Button
-                                          className="mt-4"
-                                          color="warning"
-                                          href="#pablo"
-                                          onClick={e => e.preventDefault()}
-                                        >
-                                          Learn more
-                                        </Button>
-                                      </CardBody>
-                                    </Card>
-                                  </Col>
-                                </Row>
-                              </Col>
-                            </Row>
-                          </Container>
-                        </TabPane>
-                        <TabPane tabId="iconTabs2">
-                          <p className="description">
-                            Cosby sweater eu banh mi, qui irure terry richardson
-                            ex squid. Aliquip placeat salvia cillum iphone.
-                            Seitan aliquip quis cardigan american apparel,
-                            butcher voluptate nisi qui.
-                          </p>
-                        </TabPane>
-                        <TabPane tabId="iconTabs3">
-                          <p className="description">
-                            Raw denim you probably haven't heard of them jean
-                            shorts Austin. Nesciunt tofu stumptown aliqua, retro
-                            synth master cleanse. Mustache cliche tempor,
-                            williamsburg carles vegan helvetica. Reprehenderit
-                            butcher retro keffiyeh dreamcatcher synth.
-                          </p>
-                        </TabPane>
-                      </TabContent>
-                    </div>
-                  </div>
-                </Col>
-              </Row>
+                                <CardBody className="py-2">
+                                  <h6 className="text-primary text-uppercase">
+                                    {producto.nombre}
+                                  </h6>
+                                  <p className="description mt-3">
+                                    L.{producto.precio}
+                                  </p>
+                                </CardBody>
+                              </Card>
+                            </Col>
+                          );
+                        })}
+                      </Row>
+                    </Col>
+                  </Row>
+                </Container>
+              </section>
             </Container>
           </section>
         </main>
@@ -438,7 +274,7 @@ class Productos extends React.Component {
         <Modal
           className="modal-dialog-centered modal-lg"
           isOpen={this.state.mostrarProductoModal}
-          toggle={e => this.toggleNavs(e, "mostrarProductoModal", "")}
+          toggle={() => this.toggleModal("mostrarProductoModal")}
         >
           <div className="modal-header">
             <h6 className="modal-title" id="modal-title-default">
@@ -449,7 +285,7 @@ class Productos extends React.Component {
               className="close"
               data-dismiss="modal"
               type="button"
-              onClick={e => this.toggleNavs(e, "mostrarProductoModal", "")}
+              onClick={() => this.toggleModal("mostrarProductoModal")}
             >
               <span aria-hidden={true}>×</span>
             </button>
@@ -467,7 +303,7 @@ class Productos extends React.Component {
                       <img
                         className="center-block"
                         alt="..."
-                        src={require("assets/img/icons/common/github.svg")}
+                        src={this.state.source}
                         style={{ width: "300px" }}
                       />
                     </div>
@@ -478,7 +314,7 @@ class Productos extends React.Component {
                     <Row className="text-center ml-1">
                       <div>
                         <h3 className="heading-title text-warning mb-0 ">
-                          El nombre
+                          {this.state.nombre}
                         </h3>
                       </div>
                     </Row>
@@ -487,26 +323,14 @@ class Productos extends React.Component {
 
                     {/* Descripción del producto */}
                     <Row className="mt-3 ml-1">
-                      <p>
-                        "Sed ut perspiciatis unde omnis iste natus error sit
-                        voluptatem accusantium doloremque laudantium, totam rem
-                        aperiam, eaque ipsa quae ab illo inventore veritatis et
-                        quasi architecto beatae vitae dicta sunt explicabo. Nemo
-                        enim ipsam voluptatem quia voluptas sit aspernatur aut
-                        odit aut fugit, sed quia consequuntur magni dolores eos
-                        qui ratione voluptatem sequi nesciunt. Neque porro
-                        quisquam est, qui dolorem ipsum quia dolor sit amet,
-                        consectetur, adipisci velit, sed quia non numquam eius
-                        modi tempora incidunt ut labore et dolore magnam aliquam
-                        quaerat voluptatem.
-                      </p>
+                      <p>{this.state.descripcion}</p>
                     </Row>
 
                     {/* Precio */}
                     <Row className="ml-1 ">
                       <Col sm={6}></Col>
                       <Col sm={6}>
-                        <h4 className="display-4 ">L. 150.00 </h4>
+                        <h4 className="display-4 ">L. {this.state.precio} </h4>
                       </Col>
                     </Row>
 
@@ -535,7 +359,14 @@ class Productos extends React.Component {
                         <Button
                           color="primary"
                           type="button"
-                          onClick={this.agregarACarrito}
+                          onClick={() =>
+                            this.agregarACarritoModal(
+                              this.state.id,
+                              this.state.nombre,
+                              this.state.precio,
+                              this.state.cantidad
+                            )
+                          }
                         >
                           <span className="btn-inner--icon mr-1">
                             <i className="ni ni-basket" />
