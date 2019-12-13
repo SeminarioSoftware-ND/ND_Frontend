@@ -37,7 +37,6 @@ import DashCategorias from "views/DashCategorias.jsx";
 import DashProductos from "views/DashProductos2.jsx";
 import UsuarioPerfil from "views/perfilUsuario.jsx";
 import Productos from "views/productos.jsx";
-import Carrito from "views/carrito.jsx";
 import Contacto from "views/contacto.jsx";
 import Acerca from "views/acerca.jsx";
 import Orden from "views/orden.jsx";
@@ -70,7 +69,7 @@ ReactDOM.render(
       <Route path="/ordenCompra" exact render={props => <Orden {...props} />} />
 
       {/* /TIENDA */}
-      <Route path="/carrito" exact render={props => <Carrito {...props} />} />
+
       <Route path="/contacto" exact render={props => <Contacto {...props} />} />
       <Route path="/acercade" exact render={props => <Acerca {...props} />} />
 

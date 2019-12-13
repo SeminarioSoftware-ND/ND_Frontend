@@ -29,12 +29,14 @@ class VerOrden extends React.Component {
     super(props);
     this.state = {
       cart: [],
-      cantidad: 1,
+      cantidad: 10,
       fila: null
     };
 
     this.handleChange = this.handleChange.bind(this);
     this.eliminarProducto = this.eliminarProducto.bind(this);
+    this.sumar = this.sumar.bind(this);
+    this.restar = this.restar.bind(this);
   }
   componentDidMount() {
     document.documentElement.scrollTop = 0;
@@ -42,14 +44,14 @@ class VerOrden extends React.Component {
     this.refs.main.scrollTop = 0;
 
     this.setState({ cart: JSON.parse(localStorage.getItem("products")) });
-    this.setState({});
     console.log({ cart: JSON.parse(localStorage.getItem("products")) });
 
-    // this.setState({ cantidad: this.cart.cantidad });
+    // this.setState({ cantidad: this.state.cart[0].cantidad });
   }
 
   // Evento para atrapar el cambio en los inputs
-  handleChange(e) {
+  handleChange(e, elProducto) {
+    console.log(elProducto);
     // Obtenemos por destructuring lo que está en los Inputs
     const { name, value } = e.target;
     // Actualizamos su estado
@@ -59,13 +61,40 @@ class VerOrden extends React.Component {
     console.log(this.state.cantidad);
   }
 
-  // Evento para atrapar la imagen seleccionada
-  onChangeHandler = event => {
+  restar(elProducto, cantidad) {
+    var resta = cantidad - 1;
+    if (resta <= 0) {
+      resta = 1;
+    }
+    // Obtenemos la posición del producto en el arreglo del carrito
+    var posicion = this.state.cart.indexOf(elProducto);
+    // Obtenemos el arreglo actual de productos
+    var losProductos = JSON.parse(localStorage.getItem("products"));
+    losProductos[posicion].cantidad = resta;
+    // Cambiamos el estado del carrito
     this.setState({
-      selectedFile: event.target.files[0],
-      loaded: 0
+      cart: losProductos
     });
-  };
+    // Almacenamos el nuevo arreglo con los productos restantes
+    localStorage.setItem(`products`, JSON.stringify(losProductos));
+    console.log(losProductos);
+  }
+
+  sumar(elProducto, cantidad) {
+    var suma = cantidad + 1;
+    // Obtenemos la posición del producto en el arreglo del carrito
+    var posicion = this.state.cart.indexOf(elProducto);
+    // Obtenemos el arreglo actual de productos
+    var losProductos = JSON.parse(localStorage.getItem("products"));
+    losProductos[posicion].cantidad = suma;
+    // Cambiamos el estado del carrito
+    this.setState({
+      cart: losProductos
+    });
+    // Almacenamos el nuevo arreglo con los productos restantes
+    localStorage.setItem(`products`, JSON.stringify(losProductos));
+    console.log(losProductos);
+  }
 
   // Método para eliminar el producto de LocalStorage
   eliminarProducto(elProducto) {
@@ -84,7 +113,7 @@ class VerOrden extends React.Component {
   }
 
   render() {
-    // Obtenemos por destructurin el arreglo con los productos
+    // Obtenemos por destructuring el arreglo con los productos
     const { cart } = this.state;
     // Etablecer las columnas de nuestra tabla
     const columns = [
@@ -93,9 +122,9 @@ class VerOrden extends React.Component {
         accessor: "productoId",
         style: {
           textAlign: "center"
-        }
+        },
+        filterable: false
       },
-
       {
         Header: "Nombre",
         accessor: "nombre"
@@ -105,30 +134,52 @@ class VerOrden extends React.Component {
         Cell: props => {
           return (
             <div>
-              <InputGroup className="input-group-alternative">
-                <Input
-                  id="cantidadPro"
-                  type="number"
-                  placeholder="1"
-                  step="1"
-                  min="1"
-                  pattern="^[0-9]"
-                  name="cantidad"
-                  value={this.state.cantidad}
-                  required
-                  onChange={this.handleChange}
-                />
-              </InputGroup>
+              <Row>
+                <Col sm={4}>
+                  <Button
+                    className="btn-icon"
+                    color="default"
+                    type="button"
+                    size="sm"
+                    onClick={() =>
+                      this.restar(props.original, props.original.cantidad)
+                    }
+                  >
+                    -
+                  </Button>
+                </Col>
+                <Col sm={4}>
+                  <h5>{props.original.cantidad}</h5>
+                </Col>
+                <Col sm={4}>
+                  <Button
+                    className="btn-icon"
+                    color="default"
+                    type="button"
+                    size="sm"
+                    onClick={() =>
+                      this.sumar(props.original, props.original.cantidad)
+                    }
+                  >
+                    +
+                  </Button>
+                </Col>
+              </Row>
             </div>
           );
         },
-        width: 120,
-        maxWidth: 120,
-        minWidth: 100
+        style: {
+          textAlign: "center"
+        },
+        filterable: false
       },
       {
         Header: "Precio",
-        accessor: "precio"
+        accessor: "precio",
+        style: {
+          textAlign: "right"
+        },
+        filterable: false
       },
       {
         Header: "Opciones",
@@ -239,6 +290,14 @@ class VerOrden extends React.Component {
                     rowsText={"productos"}
                   ></ReactTable>
                 </div>
+                <Button
+                  className="btn-icon"
+                  color="success"
+                  type="button"
+                  size="sm"
+                >
+                  Confirmar mi pedido.
+                </Button>
               </Card>
             </Container>
           </section>
