@@ -40,6 +40,7 @@ import Productos from "views/productos.jsx";
 import Contacto from "views/contacto.jsx";
 import Acerca from "views/acerca.jsx";
 import Orden from "views/orden.jsx";
+import Salir from "components/salir.jsx";
 
 ReactDOM.render(
   <BrowserRouter>
@@ -105,6 +106,8 @@ ReactDOM.render(
         exact
         render={props => <UsuarioPerfil {...props} />}
       />
+
+      <Route path="/salir" exact render={props => <Salir {...props} />} />
 
       <Redirect to="/" />
     </Switch>

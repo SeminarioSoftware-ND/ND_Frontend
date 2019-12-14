@@ -1,5 +1,5 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Route, Redirect } from "react-router-dom";
 import axiosConfig from "../axios";
 import Swal from "sweetalert2";
 import ReactTable from "react-table-v6";
@@ -149,28 +149,36 @@ class VerOrden extends React.Component {
     // Creamos una variable para enviar los datos de la orden
     let datos = {
       productos: this.state.cart,
-      total: this.state.total
+      total: this.state.total,
+      cliente: localStorage.getItem("usuarioNombre"),
+      email: localStorage.getItem("usuarioCorreo")
     };
 
-    // Petición para realizar la inserción del pedido
-    axiosConfig
-      .post("/guardarPedido", datos)
-      .then(respuesta => {
-        if (respuesta.status === 200) {
-          Swal.fire("Compra Realizada", respuesta.data.mensaje, "success");
-          localStorage.clear();
-        } else {
-          Swal.fire("Error", respuesta.response.data.mensaje, "warning");
-        }
-      })
-      .catch(error => {
-        Swal.fire("Error", error.response.data.error, "warning");
-      });
+    // Evaluamos si el cliente ya inició sesión
+    if (localStorage.getItem("autorizado") === "true") {
+      // Petición para realizar la inserción del pedido
+      axiosConfig
+        .post("/guardarPedido", datos)
+        .then(respuesta => {
+          if (respuesta.status === 200) {
+            Swal.fire("Compra Realizada", respuesta.data.mensaje, "success");
+            localStorage.removeItem("products");
+            window.location = "/";
+          } else {
+            Swal.fire("Error", respuesta.response.data.mensaje, "warning");
+          }
+        })
+        .catch(error => {
+          Swal.fire("Error", error.response.data.error, "warning");
+        });
+    } else {
+      window.location = "/iniciarSesion";
+    }
   }
 
   // Método para cancelar el pedido
   cancelarPedido() {
-    localStorage.clear();
+    localStorage.removeItem("products");
     Swal.fire("Orden cancelada", "", "success");
     window.location = "/";
   }

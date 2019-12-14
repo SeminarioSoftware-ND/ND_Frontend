@@ -48,6 +48,7 @@ class CrearCuenta extends React.Component {
       apellido: "",
       correo: "",
       password: "",
+      confirmPassword: "",
       selectedFile: null,
       imagen: ""
     };
@@ -114,6 +115,7 @@ class CrearCuenta extends React.Component {
               apellido: this.state.apellido,
               correo: this.state.correo,
               password: this.state.password,
+              confirmarPassword: this.state.confirmPassword,
               imagen: respuesta.data.imagen
             };
 
@@ -135,13 +137,13 @@ class CrearCuenta extends React.Component {
               })
               // Error de ingresar usuario
               .catch(error => {
-                Swal.fire("¡Alerta!", error.response.data.mensaje, "warning");
+                Swal.fire("¡Error!", error.response.data.mensaje, "warning");
               });
           }
         })
         // Error de imagen
         .catch(error => {
-          Swal.fire("¡Alerta!", error.response.data.mensaje, "warning");
+          Swal.fire("¡Error!", error.response.data.mensaje, "warning");
         });
     }
     // Si no se seleccionó imagen
@@ -151,7 +153,8 @@ class CrearCuenta extends React.Component {
         nombre: this.state.nombre,
         apellido: this.state.apellido,
         correo: this.state.correo,
-        password: this.state.password
+        password: this.state.password,
+        confirmarPassword: this.state.confirmPassword
       };
 
       // petición de almacenar usuario
@@ -166,7 +169,8 @@ class CrearCuenta extends React.Component {
           }
         })
         .catch(error => {
-          Swal.fire("¡Alerta!", error.response.data.mensaje, "warning");
+          console.log(error.response);
+          Swal.fire("¡Error!", error.response.data[0].mensaje, "warning");
         });
     }
   };
@@ -287,6 +291,7 @@ class CrearCuenta extends React.Component {
                               placeholder="Confirmar contraseña"
                               type="password"
                               autoComplete="off"
+                              name="confirmPassword"
                               required
                               onChange={this.handleChange}
                             />

@@ -28,8 +28,10 @@ class IndexNavbar extends React.Component {
     super(props);
     this.state = {
       lasCategorias: [],
-      cart: []
+      cart: [],
+      nombreUsuario: ""
     };
+    this.acceso = this.acceso.bind(this);
   }
 
   // Métodos para cargar los componentes al renderizar la página
@@ -44,10 +46,21 @@ class IndexNavbar extends React.Component {
       this.setState({ lasCategorias: response.data });
     });
 
-    // Cargar el carrito
-    this.setState({ cart: JSON.parse(localStorage.getItem("products")) });
+    // Cargar el carrito y el nombre del usuario actual
+    this.setState({
+      cart: JSON.parse(localStorage.getItem("products")),
+      nombreUsuario: localStorage.getItem("usuarioNombre")
+    });
 
-    console.log(this.state.cart.length);
+    console.log(this.state.nombreUsuario);
+  }
+
+  acceso() {
+    if (this.state.nombreUsuario) {
+      window.location = "/salir";
+    } else {
+      window.location = "/iniciarSesion";
+    }
   }
 
   render() {
@@ -159,19 +172,23 @@ class IndexNavbar extends React.Component {
                   <UncontrolledDropdown nav>
                     <DropdownToggle nav>
                       <i className="ni ni-collection d-lg-none mr-1" />
-                      <span className="nav-link-inner--text">Usuario</span>
+                      <span className="nav-link-inner--text">
+                        {this.state.nombreUsuario}
+                      </span>
                     </DropdownToggle>
+
                     <DropdownMenu>
                       <DropdownItem to="/usuarioPerfil" tag={Link}>
                         <i className="ni ni-single-copy-04 d-lg-none mr-1" />
                         <span className="nav-link-inner--text">Perfil</span>
                       </DropdownItem>
-                      <DropdownItem to="/impresiones" tag={Link}>
+                      <DropdownItem to="/salir" tag={Link}>
                         <i className="ni ni-single-copy-04 d-lg-none mr-1" />
                         <span className="nav-link-inner--text">Salir</span>
                       </DropdownItem>
                     </DropdownMenu>
                   </UncontrolledDropdown>
+
                   {/* /Usuario */}
 
                   {/* Carrito */}
@@ -187,7 +204,7 @@ class IndexNavbar extends React.Component {
                     <DropdownMenu className="dropdown-menu-lg">
                       <div className="dropdown-menu-inner">
                         {/* Realizamos una condición si hay artículos en el carrito */}
-                        {this.state.cart == null || this.state.cart == 0 ? (
+                        {this.state.cart === null || this.state.cart === 0 ? (
                           // Si no hay, envíamos mensaje
                           <p>Aún no has agregado al carrito</p>
                         ) : (
@@ -208,7 +225,7 @@ class IndexNavbar extends React.Component {
 
                       <Row className="justify-content-center align-items-center text-center">
                         {/* Evaluar el estado del carro para mostrar los botones */}
-                        {this.state.cart == null || this.state.cart == 0 ? (
+                        {this.state.cart === null || this.state.cart === 0 ? (
                           <br />
                         ) : (
                           <div>
@@ -268,6 +285,20 @@ class IndexNavbar extends React.Component {
                     <UncontrolledTooltip delay={0} target="tooltip356693867">
                       Síguenos en Instagram
                     </UncontrolledTooltip>
+                  </NavItem>
+
+                  <NavItem className="d-none d-lg-block ml-lg-4">
+                    <Button
+                      className="btn-neutral btn-icon"
+                      color="default"
+                      onClick={this.acceso}
+                    >
+                      <span className="nav-link-inner--text ml-1">
+                        {this.state.nombreUsuario
+                          ? "Cerrar sesión"
+                          : "Iniciar sesión"}
+                      </span>
+                    </Button>
                   </NavItem>
                 </Nav>
               </UncontrolledCollapse>

@@ -66,17 +66,31 @@ class IniciarSesion extends React.Component {
     e.preventDefault();
     console.log("click");
     let datos = {
-      correo: this.state.correo,
+      email: this.state.correo,
       password: this.state.password
     };
-    axiosConfig
-      .post("/autenticar", datos)
-      .then(respuesta => {
-        Swal.fire("Entró", respuesta.data.mensaje, "success");
-      })
-      .catch(error => {
-        Swal.fire("Error", error.response.data.mensaje, "warning");
-      });
+    axiosConfig.post("/autenticarUsuario", datos).then(respuesta => {
+      console.log(respuesta);
+      if (respuesta.status === 200) {
+        // Mostramos el mensaje de bienvenida
+        Swal.fire("Control de acceso", respuesta.data.mensaje, "success");
+        // Creamos otro item en el Local Storage con el estado de autorización del usuario
+        localStorage.setItem("autorizado", "true");
+        // Guardamos los datos generales
+        localStorage.setItem("usuarioCorreo", respuesta.data.email);
+        localStorage.setItem("usuarioNombre", respuesta.data.usuario);
+        // Redireccionamos
+        window.location = "/";
+      } else {
+        // Mostramos mensaje de error
+        Swal.fire("Error", respuesta.data.mensaje, "success");
+        // Redireccionamos a el login
+        window.location = "/iniciarSesion";
+      }
+    });
+    // .catch(error => {
+    //   Swal.fire("Error", error.response.data.mensaje, "warning");
+    // });
   }
 
   componentDidMount() {
