@@ -46,6 +46,8 @@ class IndexNavbar extends React.Component {
 
     // Cargar el carrito
     this.setState({ cart: JSON.parse(localStorage.getItem("products")) });
+
+    console.log(this.state.cart.length);
   }
 
   render() {
@@ -185,7 +187,10 @@ class IndexNavbar extends React.Component {
                     <DropdownMenu className="dropdown-menu-lg">
                       <div className="dropdown-menu-inner">
                         {/* Realizamos una condición si hay artículos en el carrito */}
-                        {this.state.cart !== null ? (
+                        {this.state.cart == null || this.state.cart == 0 ? (
+                          // Si no hay, envíamos mensaje
+                          <p>Aún no has agregado al carrito</p>
+                        ) : (
                           // Si hay artículo, mapeamos cada uno de ellos
                           this.state.cart.map((carrito, i) => {
                             return (
@@ -198,15 +203,14 @@ class IndexNavbar extends React.Component {
                               </div>
                             );
                           })
-                        ) : (
-                          // Si no hay, envíamos mensaje
-                          <p>Aún no has agregado al carrito</p>
                         )}
                       </div>
 
                       <Row className="justify-content-center align-items-center text-center">
                         {/* Evaluar el estado del carro para mostrar los botones */}
-                        {this.state.cart !== null ? (
+                        {this.state.cart == null || this.state.cart == 0 ? (
+                          <br />
+                        ) : (
                           <div>
                             <Col sm={12} className="mb-md-1">
                               <Button
@@ -224,8 +228,6 @@ class IndexNavbar extends React.Component {
                               </Button>
                             </Col>
                           </div>
-                        ) : (
-                          <br />
                         )}
                       </Row>
                     </DropdownMenu>

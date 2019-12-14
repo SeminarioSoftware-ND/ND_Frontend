@@ -135,12 +135,20 @@ class Productos extends React.Component {
     if (localStorage.getItem("products")) {
       products = JSON.parse(localStorage.getItem("products"));
     }
+
+    // Calcular el subtotal del producto
+    const subTotal = cantidad * elProducto.precio;
+
+    // Agregar el producto al arreglo de productos
     products.push({
       productoId: elProducto._id,
       nombre: elProducto.nombre,
       precio: elProducto.precio,
-      cantidad: cantidad
+      cantidad: cantidad,
+      subTotal: subTotal
     });
+
+    // Agregamos el arreglo al Local Storage
     localStorage.setItem(`products`, JSON.stringify(products));
     console.log("agregado");
 
@@ -148,17 +156,25 @@ class Productos extends React.Component {
     Swal.fire("¡Agregado!", "Producto agregado al carrito", "success");
   }
 
+  // Método para agregar un producto seleccionado al LocalStorage desde el modal
   agregarACarritoModal(id, nombre, precio, cantidad) {
     let products = [];
     if (localStorage.getItem("products")) {
       products = JSON.parse(localStorage.getItem("products"));
     }
+
+    // Calcular el subtotal del producto
+    const subTotal = cantidad * precio;
+
+    // Agregar el producto al arreglo de productos
     products.push({
       productoId: id,
       nombre: nombre,
       precio: precio,
-      cantidad: parseInt(cantidad)
+      cantidad: parseInt(cantidad),
+      subTotal: subTotal
     });
+    // Agregamos el arreglo al Local Storage
     localStorage.setItem("products", JSON.stringify(products));
     console.log("agregado");
 

@@ -6,19 +6,7 @@ import ReactTable from "react-table-v6";
 import "react-table-v6/react-table.css";
 
 // reactstrap components
-import {
-  Button,
-  Card,
-  Container,
-  Row,
-  Col,
-  FormGroup,
-  Form,
-  Input,
-  InputGroupAddon,
-  InputGroupText,
-  InputGroup
-} from "reactstrap";
+import { Button, Card, Container, Row, Col } from "reactstrap";
 
 // core components
 import IndexNavbar from "components/Navbars/IndexNavbar.jsx";
@@ -30,23 +18,33 @@ class VerOrden extends React.Component {
     this.state = {
       cart: [],
       cantidad: 10,
-      fila: null
+      fila: null,
+      total: 0
     };
 
+    // Para que nos funcionen en el CallBack
     this.handleChange = this.handleChange.bind(this);
     this.eliminarProducto = this.eliminarProducto.bind(this);
     this.sumar = this.sumar.bind(this);
     this.restar = this.restar.bind(this);
+    this.guardarPedido = this.guardarPedido.bind(this);
+    this.calcularTotal = this.calcularTotal.bind(this);
+    this.cancelarPedido = this.cancelarPedido.bind(this);
   }
+  // Método que renderiza la página
   componentDidMount() {
     document.documentElement.scrollTop = 0;
     document.scrollingElement.scrollTop = 0;
     this.refs.main.scrollTop = 0;
 
+    // Cargamos los productos del carrito al LocalStorage
     this.setState({ cart: JSON.parse(localStorage.getItem("products")) });
     console.log({ cart: JSON.parse(localStorage.getItem("products")) });
 
-    // this.setState({ cantidad: this.state.cart[0].cantidad });
+    // Calculamos el Total de la orden
+    {
+      this.calcularTotal(JSON.parse(localStorage.getItem("products")));
+    }
   }
 
   // Evento para atrapar el cambio en los inputs
@@ -61,6 +59,7 @@ class VerOrden extends React.Component {
     console.log(this.state.cantidad);
   }
 
+  // Método para restar la cantidad de productos
   restar(elProducto, cantidad) {
     var resta = cantidad - 1;
     if (resta <= 0) {
@@ -71,15 +70,24 @@ class VerOrden extends React.Component {
     // Obtenemos el arreglo actual de productos
     var losProductos = JSON.parse(localStorage.getItem("products"));
     losProductos[posicion].cantidad = resta;
+    // Actualizar el subtotal
+    var subTotal =
+      losProductos[posicion].cantidad * losProductos[posicion].precio;
+    losProductos[posicion].subTotal = subTotal;
     // Cambiamos el estado del carrito
     this.setState({
       cart: losProductos
     });
     // Almacenamos el nuevo arreglo con los productos restantes
     localStorage.setItem(`products`, JSON.stringify(losProductos));
-    console.log(losProductos);
+
+    // Actualizamos el total
+    {
+      this.calcularTotal(losProductos);
+    }
   }
 
+  // Método para sumar la cantidad de productos
   sumar(elProducto, cantidad) {
     var suma = cantidad + 1;
     // Obtenemos la posición del producto en el arreglo del carrito
@@ -87,13 +95,21 @@ class VerOrden extends React.Component {
     // Obtenemos el arreglo actual de productos
     var losProductos = JSON.parse(localStorage.getItem("products"));
     losProductos[posicion].cantidad = suma;
+    // Actualizar el subtotal
+    var subTotal =
+      losProductos[posicion].cantidad * losProductos[posicion].precio;
+    losProductos[posicion].subTotal = subTotal;
     // Cambiamos el estado del carrito
     this.setState({
       cart: losProductos
     });
     // Almacenamos el nuevo arreglo con los productos restantes
     localStorage.setItem(`products`, JSON.stringify(losProductos));
-    console.log(losProductos);
+
+    // Actualizamos el total
+    {
+      this.calcularTotal(losProductos);
+    }
   }
 
   // Método para eliminar el producto de LocalStorage
@@ -110,6 +126,53 @@ class VerOrden extends React.Component {
     });
     // Almacenamos el nuevo arreglo con los productos restantes
     localStorage.setItem(`products`, JSON.stringify(losProductos));
+
+    this.calcularTotal(losProductos);
+  }
+
+  // Método para calcular el total del pedido
+  calcularTotal(cart) {
+    if (!cart) {
+      this.setState({ total: 0 });
+    } else {
+      var elTotal = 0;
+
+      cart.forEach(producto => {
+        elTotal += producto.subTotal;
+      });
+      this.setState({ total: elTotal });
+    }
+  }
+
+  // Método para guardar en la base de datos
+  guardarPedido() {
+    // Creamos una variable para enviar los datos de la orden
+    let datos = {
+      productos: this.state.cart,
+      total: this.state.total
+    };
+
+    // Petición para realizar la inserción del pedido
+    axiosConfig
+      .post("/guardarPedido", datos)
+      .then(respuesta => {
+        if (respuesta.status === 200) {
+          Swal.fire("Compra Realizada", respuesta.data.mensaje, "success");
+          localStorage.clear();
+        } else {
+          Swal.fire("Error", respuesta.response.data.mensaje, "warning");
+        }
+      })
+      .catch(error => {
+        Swal.fire("Error", error.response.data.error, "warning");
+      });
+  }
+
+  // Método para cancelar el pedido
+  cancelarPedido() {
+    localStorage.clear();
+    Swal.fire("Orden cancelada", "", "success");
+    window.location = "/";
   }
 
   render() {
@@ -182,6 +245,14 @@ class VerOrden extends React.Component {
         filterable: false
       },
       {
+        Header: "Subtotal",
+        accessor: "subTotal",
+        style: {
+          textAlign: "right"
+        },
+        filterable: false
+      },
+      {
         Header: "Opciones",
         Cell: props => {
           return (
@@ -197,7 +268,14 @@ class VerOrden extends React.Component {
               Eliminar
             </Button>
           );
-        }
+        },
+        style: {
+          textAlign: "center"
+        },
+        width: 100,
+        maxWidth: 100,
+        minWidth: 100,
+        filterable: false
       }
     ];
 
@@ -290,14 +368,42 @@ class VerOrden extends React.Component {
                     rowsText={"productos"}
                   ></ReactTable>
                 </div>
-                <Button
-                  className="btn-icon"
-                  color="success"
-                  type="button"
-                  size="sm"
-                >
-                  Confirmar mi pedido.
-                </Button>
+                <section className="section">
+                  <Container>
+                    <Row className="justify-content-center">
+                      <Col sm="12">
+                        <h3 className="text-right">Total</h3>
+                      </Col>
+                      {/* Calculamos el total recorriendo el arreglo */}
+                      <Col sm="12">
+                        <h3 className="text-right">L. {this.state.total}</h3>
+                      </Col>
+                      {/* Botón de confirmar el pedido */}
+                      <Col sm="12">
+                        <Button
+                          className="btn-icon"
+                          color="success"
+                          type="button"
+                          block
+                          onClick={this.guardarPedido}
+                        >
+                          Confirmar orden
+                        </Button>
+                      </Col>
+                      <Col sm="12" className="mt-2">
+                        <Button
+                          className="btn-icon"
+                          color="danger"
+                          type="button"
+                          block
+                          onClick={this.cancelarPedido}
+                        >
+                          Cancelar orden
+                        </Button>
+                      </Col>
+                    </Row>
+                  </Container>
+                </section>
               </Card>
             </Container>
           </section>
