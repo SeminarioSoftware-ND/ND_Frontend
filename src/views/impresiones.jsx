@@ -87,19 +87,16 @@ class Impresiones extends React.Component {
   // Seleccionar el color
   handleChangeSelectColor = selectedColor => {
     this.setState({ selectedColor: selectedColor.value });
-    console.log("Opcion seleccionada: " + selectedColor.value);
   };
 
   // Seleccionar el tamanio
   handleChangeSelectTamanio = selectedTamanio => {
     this.setState({ selectedTamanio: selectedTamanio.value });
-    console.log("Opcion seleccionada: " + selectedTamanio.value);
   };
 
   // Seleccionar el tipo Hoja
   handleChangeSelectTipoHoja = selectedTipoHoja => {
     this.setState({ selectedTipoHoja: selectedTipoHoja.value });
-    console.log("Opcion seleccionada: " + selectedTipoHoja.value);
   };
 
   // Evento para atrapar el archivo que se está subiendo
@@ -108,57 +105,66 @@ class Impresiones extends React.Component {
       selectedFile: event.target.files[0],
       loaded: 0
     });
-    console.log("si entró aquí");
   };
 
   // Función para subir archivos
   subirDocumento(e) {
     e.preventDefault();
 
-    // Creamos una variable para recoger el archivo a subir
-    const data = new FormData();
-    data.append("file", this.state.selectedFile, this.state.selectedFile.name);
+    if (localStorage.getItem("autorizado") === "true") {
+      // Creamos una variable para recoger el archivo a subir
+      const data = new FormData();
+      data.append(
+        "file",
+        this.state.selectedFile,
+        this.state.selectedFile.name
+      );
 
-    // Realizamos la petición para insertar el documento
-    axiosConfig
-      .post("/subirArchivo", data)
-      .then(respuesta => {
-        // Si se sube el archivo, almacenamos la información de la petición
-        if (respuesta.status === 200) {
-          // Creamos nuestro JSON para insertar los datos
-          console.log(respuesta.data.imagen);
-          let datos = {
-            documento: respuesta.data.imagen,
-            color: this.state.selectedColor,
-            tamanio: this.state.selectedTamanio,
-            tipoHoja: this.state.selectedTipoHoja,
-            cantidadHojas: this.state.cantidadDeHojas,
-            especificaciones: this.state.especificaciones
-          };
+      // Realizamos la petición para insertar el documento
+      axiosConfig
+        .post("/subirArchivo", data)
+        .then(respuesta => {
+          // Si se sube el archivo, almacenamos la información de la petición
+          if (respuesta.status === 200) {
+            // Creamos nuestro JSON para insertar los datos
 
-          // Realizamos la petición para almacenamos la información de la petición
-          axiosConfig.post("/nuevaImpresion", datos).then(respuesta2 => {
-            // Si se almacenaron los datos
-            if (respuesta2.status === 200) {
-              Swal.fire("¡Agregado!", respuesta2.data.mensaje, "success");
-            } else {
-              Swal.fire(
-                "¡Alerta!",
-                respuesta2.response.data.mensaje,
-                "warning"
-              );
-            }
-          });
-          // Error de ingresar información
-          // .catch(error => {
-          //   Swal.fire("¡Error!", error.response.data.mensaje, "warning");
-          // });
-        }
-      })
-      // Error de imagen
-      .catch(error => {
-        Swal.fire("¡Error!", error.response.data.mensaje, "warning");
-      });
+            let datos = {
+              documento: respuesta.data.imagen,
+              color: this.state.selectedColor,
+              tamanio: this.state.selectedTamanio,
+              tipoHoja: this.state.selectedTipoHoja,
+              cantidadHojas: this.state.cantidadDeHojas,
+              especificaciones: this.state.especificaciones,
+              email: localStorage.getItem("usuarioCorreo")
+            };
+
+            // Realizamos la petición para almacenamos la información de la petición
+            axiosConfig.post("/nuevaImpresion", datos).then(respuesta2 => {
+              // Si se almacenaron los datos
+              if (respuesta2.status === 200) {
+                Swal.fire("¡Agregado!", respuesta2.data.mensaje, "success");
+                window.location = "/";
+              } else {
+                Swal.fire(
+                  "¡Alerta!",
+                  respuesta2.response.data.mensaje,
+                  "warning"
+                );
+              }
+            });
+            // Error de ingresar información
+            // .catch(error => {
+            //   Swal.fire("¡Error!", error.response.data.mensaje, "warning");
+            // });
+          }
+        })
+        // Error de documento
+        .catch(error => {
+          Swal.fire("¡Error!", error.response.data.mensaje, "warning");
+        });
+    } else {
+      window.location = "/iniciarSesion";
+    }
   }
 
   render() {

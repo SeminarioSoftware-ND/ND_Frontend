@@ -71,6 +71,7 @@ ReactDOM.render(
       <Route path="/ordenCompra" exact render={props => <Orden {...props} />} />
       <Route path="/contacto" exact render={props => <Contacto {...props} />} />
       <Route path="/acercade" exact render={props => <Acerca {...props} />} />
+
       <Route
         path="/impresiones"
         exact
