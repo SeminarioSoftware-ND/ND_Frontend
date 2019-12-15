@@ -38,7 +38,7 @@ import {
 } from "reactstrap";
 
 // core components
-import DemoNavbar from "components/Navbars/DemoNavbar.jsx";
+import IndexNavbar from "components/Navbars/IndexNavbar.jsx";
 
 class CrearCuenta extends React.Component {
   constructor(props) {
@@ -178,7 +178,7 @@ class CrearCuenta extends React.Component {
   render() {
     return (
       <>
-        <DemoNavbar />
+        <IndexNavbar />
         <main ref="main">
           <section className="section section-shaped section-lg">
             <div className="shape shape-style-1 bg-gradient-default">
@@ -328,7 +328,7 @@ class CrearCuenta extends React.Component {
 
                   <Row className="mt-3">
                     <Col className="text-light text-center" xs="12">
-                      <Link to="/">
+                      <Link to="/iniciarSesion">
                         <small>Iniciar sesión</small>
                       </Link>
                     </Col>

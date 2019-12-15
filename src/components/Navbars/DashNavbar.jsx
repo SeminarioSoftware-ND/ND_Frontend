@@ -34,14 +34,37 @@ import {
   Container,
   Row,
   Col,
-  UncontrolledTooltip
+  UncontrolledTooltip,
+  Button
 } from "reactstrap";
 
 class DashNavbar extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      nombreUsuario: ""
+    };
+    this.acceso = this.acceso.bind(this);
+  }
+  // Método para cargar los componentes al renderizar la página
   componentDidMount() {
     let headroom = new Headroom(document.getElementById("navbar-main"));
     // initialise
     headroom.init();
+
+    // Cargamos el nombre del usuario actual
+    this.setState({
+      nombreUsuario: localStorage.getItem("usuarioNombre")
+    });
+  }
+
+  // Método para verificar acceso
+  acceso() {
+    if (this.state.nombreUsuario) {
+      window.location = "/salir";
+    } else {
+      window.location = "/iniciarSesion";
+    }
   }
   render() {
     return (
@@ -127,7 +150,9 @@ class DashNavbar extends React.Component {
                   <UncontrolledDropdown nav>
                     <DropdownToggle nav>
                       <i className="ni ni-collection d-lg-none mr-1" />
-                      <span className="nav-link-inner--text">Usuario</span>
+                      <span className="nav-link-inner--text">
+                        {this.state.nombreUsuario}
+                      </span>
                     </DropdownToggle>
                     <DropdownMenu>
                       <DropdownItem to="/usuarioPerfil" tag={Link}>
@@ -176,6 +201,20 @@ class DashNavbar extends React.Component {
                     <UncontrolledTooltip delay={0} target="tooltip356693867">
                       Síguenos en Instagram
                     </UncontrolledTooltip>
+                  </NavItem>
+
+                  <NavItem className="d-none d-lg-block ml-lg-4">
+                    <Button
+                      className="btn-neutral btn-icon"
+                      color="default"
+                      onClick={this.acceso}
+                    >
+                      <span className="nav-link-inner--text ml-1">
+                        {this.state.nombreUsuario
+                          ? "Cerrar sesión"
+                          : "Iniciar sesión"}
+                      </span>
+                    </Button>
                   </NavItem>
                 </Nav>
               </UncontrolledCollapse>

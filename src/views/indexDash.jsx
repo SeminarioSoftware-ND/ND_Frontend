@@ -31,31 +31,50 @@ class IndexDash extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      _id: "",
+      documento: "",
+      color: "",
+      tipoHoja: "",
+      tamanio: "",
+      especificaciones: "",
+      cantidadHojas: "",
+      cliente: "",
+      correo: "",
+      estado: "",
+      fecha: "",
+      url: "",
       TableData: [
         {
-          idDocumento: "",
-          selectedFile: null,
+          _id: "",
           documento: "",
           color: "",
           tipoHoja: "",
-          tamano: "",
+          tamanio: "",
           especificaciones: "",
           cantidadHojas: "",
-          usuario: "",
+          cliente: "",
+          correo: "",
           estado: "",
-          fechaEntrega: ""
+          fecha: "",
+          url: ""
         }
       ]
     };
-    // Este enlace es necesario para hacer que "this" funciones en el callback
-    this.cargarImpresiones = this.cargarImpresiones.bind(this);
+    // Función para el callback
+    this.descargarArchivo = this.descargarArchivo.bind(this);
+    this.cambiarEstadoImpresion = this.cambiarEstadoImpresion.bind(this);
   }
+
+  // Componente que carga al renderizar la página
   componentDidMount() {
     document.documentElement.scrollTop = 0;
     document.scrollingElement.scrollTop = 0;
     this.refs.main.scrollTop = 0;
 
-    this.cargarImpresiones();
+    axiosConfig.get("/impresiones", { responseType: "json" }).then(response => {
+      // Modificamos el estado del arreglo TableData para llenarlo con la consulta
+      this.setState({ TableData: response.data.lasImpresiones });
+    });
   }
 
   // Evento para desplegar los modales
@@ -65,15 +84,63 @@ class IndexDash extends React.Component {
     });
   };
 
-  // Función para cargar las impresiones
-  cargarImpresiones() {
-    // Petición para cargar las impresiones pendientes
+  // Función para cargar datos al modal
+  cargarDatos(items) {
+    this.setState({
+      especificaciones: items.especificaciones,
+      color: items.color,
+      tamanio: items.tamanio,
+      tipoHoja: items.tipoHoja,
+      documento: items.documento,
+      estado: items.estado,
+      url: items.url
+    });
+  }
+
+  // Función para descargar el archivo
+  descargarArchivo(nombreArchivo) {
+    console.log(nombreArchivo);
     axiosConfig
-      .get("/impresionesPendientes", { responseType: "json" })
-      .then(response => {
-        // Modificamos el estado del arreglo TableData para llenarlo con la consulta
-        this.setState({ TableData: response.data });
+      .get("/descargarDocumento/", {
+        params: {
+          nombreArchivo
+        },
+        responseType: "blob"
+      })
+      .then(respuesta => {
+        console.log(respuesta);
+        const url = window.URL.createObjectURL(new Blob([respuesta.data]));
+        const link = document.createElement("a");
+        link.href = url;
+        link.setAttribute("download", nombreArchivo);
+        document.body.appendChild(link);
+        link.click();
       });
+  }
+
+  // Función para cambiar el estado de la impresión
+  cambiarEstadoImpresion() {
+    // Estado = 0 => impreso
+    // Estado = 1 => Por imprimir
+    var elEstado = {
+      estado: 0
+    };
+    if (this.state.estado === 1) {
+      elEstado.estado = 0;
+      axiosConfig
+        .post(`/actualizarImpresion/${this.state.url}`, elEstado)
+        .then(respuesta => {
+          if (respuesta.status === 200) {
+            Swal.fire("¡Exitoso!", respuesta.data.mensaje, "success");
+            window.location = "/admin";
+          }
+        })
+        .catch(error => {
+          Swal.fire("¡Error!", error.response.data.error, "warning");
+        });
+    } else {
+      Swal.fire("¡Atención!", "El documento ya se imprimió", "warning");
+    }
   }
 
   render() {
@@ -96,43 +163,91 @@ class IndexDash extends React.Component {
       },
       {
         Header: "Archivo",
-        accessor: "documento"
+        accessor: "documento",
+        show: false
       },
       {
         Header: "Color",
-        accessor: "color"
+        accessor: "color",
+        width: 150,
+        maxWidth: 150,
+        minWidth: 150
       },
       {
         Header: "Tipo de papel",
-        accessor: "tipoHoja"
+        accessor: "tipoHoja",
+        width: 160,
+        maxWidth: 160,
+        minWidth: 160
       },
       {
         Header: "Tamaño de hoja ",
-        accessor: "tamano"
+        accessor: "tamanio",
+        width: 100,
+        maxWidth: 100,
+        minWidth: 100
       },
       {
         Header: "Especificaciones",
-        accessor: "especificaciones"
+        accessor: "especificaciones",
+        width: 300,
+        maxWidth: 300,
+        minWidth: 200,
+        show: false
       },
       {
         Header: "Cantidad",
-        accessor: "cantidadHojas"
+        accessor: "cantidadHojas",
+        style: {
+          textAlign: "center"
+        }
       },
       {
         Header: "Usuario",
-        accessor: "usuario"
+        accessor: "correo",
+        width: 300,
+        maxWidth: 300,
+        minWidth: 200,
+        style: {
+          textAlign: "center"
+        }
       },
       {
         Header: "Estado",
-        accessor: "estado"
+        accessor: "estado",
+        show: false
       },
       {
         Header: "Fecha",
-        accessor: "fechaEntrega"
+        accessor: "fecha",
+        style: {
+          textAlign: "center"
+        },
+        width: 300,
+        maxWidth: 300,
+        minWidth: 300
       },
       {
         Header: "Opciones",
-        Cell: props => {}
+        Cell: props => {
+          return (
+            <div>
+              {/* AQUI SE ABRE EL MODAL */}
+              <Button
+                className="btn-icon"
+                color="info"
+                type="button"
+                size="sm"
+                onClick={() => {
+                  this.toggleModal("infoImpresion");
+                  this.cargarDatos(props.original);
+                }}
+              >
+                ver
+              </Button>
+            </div>
+          );
+        }
       }
     ];
     return (
@@ -158,24 +273,6 @@ class IndexDash extends React.Component {
                     </h2>
                   </Col>
                 </Row>
-
-                {/* Botón actualizar */}
-                <Row>
-                  <Col lg="12" className="mb-3">
-                    <Button
-                      color="default"
-                      block
-                      type="button"
-                      onClick={() => this.toggleModal("defaultModal")}
-                    >
-                      <span className="btn-inner--icon mr-1">
-                        <i className="ni ni-curved-next" />
-                      </span>
-                      <span className="btn-inner--text">Actualizar</span>
-                    </Button>
-                  </Col>
-                </Row>
-                {/* Botón actualizar */}
               </section>
 
               <section>
@@ -186,6 +283,11 @@ class IndexDash extends React.Component {
                   filterable
                   defaultPageSize={10}
                   noDataText={"No hay datos disponibles"}
+                  previousText={"Anterior"}
+                  nextText={"Siguiente"}
+                  pageText={"Página"}
+                  ofText={"de"}
+                  rowsText={"registros"}
                 ></ReactTable>
                 {/* TABLA */}
               </section>
@@ -193,6 +295,155 @@ class IndexDash extends React.Component {
           </section>
         </main>
         <SimpleFooter />
+
+        {/* MODAL MOSTRAR INFORMACIÓN IMPRESIONES */}
+        <Modal
+          className="modal-dialog-centered modal-lg"
+          isOpen={this.state.infoImpresion}
+          itemID={this.state.nombre}
+          toggle={() => this.toggleModal("infoImpresion")}
+        >
+          <div className="modal-header">
+            <h6 className="modal-title" id="modal-title-default">
+              Información de impresión
+            </h6>
+            <button
+              aria-label="Close"
+              className="close"
+              data-dismiss="modal"
+              type="button"
+              onClick={() => this.toggleModal("infoImpresion")}
+            >
+              <span aria-hidden={true}>×</span>
+            </button>
+          </div>
+          {/* Modal Body */}
+          <div className="modal-body p-0">
+            <Card className="bg-secondary shadow border-0">
+              <CardBody className="px-lg-5 py-lg-5">
+                {/* Formulario */}
+                <Form>
+                  {/* Descripción */}
+                  <FormGroup row className={classnames("mb-3")}>
+                    <Label for="descripcionPro" sm={2}>
+                      Detalles
+                    </Label>
+                    <Col sm={10}>
+                      <InputGroup className="input-group-alternative">
+                        <Input
+                          id="descripcionPro"
+                          placeholder="No hay especificaciones"
+                          rows="3"
+                          type="textarea"
+                          name="descripcion"
+                          value={this.state.especificaciones}
+                          disabled
+                        />
+                      </InputGroup>
+                    </Col>
+                  </FormGroup>
+                  {/* /Descripcion */}
+
+                  {/* Nombre */}
+                  <FormGroup row className={classnames("mb-3")}>
+                    <Label for="nombrePro" sm={2}>
+                      Color
+                    </Label>
+                    <Col sm={10}>
+                      <InputGroup className="input-group-alternative">
+                        <Input
+                          type="text"
+                          name="nombre"
+                          value={this.state.color}
+                          disabled
+                        />
+                      </InputGroup>
+                    </Col>
+                  </FormGroup>
+                  {/* /Nombre */}
+
+                  {/* Nombre */}
+                  <FormGroup row className={classnames("mb-3")}>
+                    <Label for="nombrePro" sm={2}>
+                      Tamaño
+                    </Label>
+                    <Col sm={10}>
+                      <InputGroup className="input-group-alternative">
+                        <Input
+                          type="text"
+                          name="nombre"
+                          value={this.state.tamanio}
+                          disabled
+                        />
+                      </InputGroup>
+                    </Col>
+                  </FormGroup>
+                  {/* /Nombre */}
+
+                  {/* Nombre */}
+                  <FormGroup row className={classnames("mb-3")}>
+                    <Label for="nombrePro" sm={2}>
+                      Tipo de hoja
+                    </Label>
+                    <Col sm={10}>
+                      <InputGroup className="input-group-alternative">
+                        <Input
+                          type="text"
+                          name="nombre"
+                          value={this.state.tipoHoja}
+                          disabled
+                        />
+                      </InputGroup>
+                    </Col>
+                  </FormGroup>
+                  {/* /Nombre */}
+
+                  {/* Opciones de footer */}
+                  <div className="modal-footer  pb-1">
+                    <FormGroup row className={classnames("mt-3")}>
+                      <Button
+                        color="danger"
+                        type="button"
+                        className="mr-5 float-left"
+                        onClick={() => {
+                          this.cambiarEstadoImpresion();
+                        }}
+                      >
+                        {this.state.estado === 0 ? "Impreso" : "Por imprimir"}
+                      </Button>
+
+                      {/* Cambiar estado */}
+                      {/* Botón agregar */}
+
+                      <Button
+                        color="success"
+                        type="button"
+                        onClick={() => {
+                          this.descargarArchivo(this.state.documento);
+                        }}
+                      >
+                        Descargar
+                      </Button>
+
+                      {/* Botón cerrar */}
+
+                      <Button
+                        className="ml-auto"
+                        color="link"
+                        data-dismiss="modal"
+                        type="button"
+                        onClick={() => this.toggleModal("infoImpresion")}
+                      >
+                        Cerrar
+                      </Button>
+                    </FormGroup>
+                  </div>
+                </Form>
+              </CardBody>
+            </Card>
+          </div>
+        </Modal>
+        {/* MODAL MOSTRAR INFORMACIÓN IMPRESIONES */}
       </>
     );
   }

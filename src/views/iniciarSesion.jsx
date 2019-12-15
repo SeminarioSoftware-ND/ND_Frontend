@@ -38,7 +38,8 @@ import {
 } from "reactstrap";
 
 // core components
-import DemoNavbar from "components/Navbars/DemoNavbar.jsx";
+import IndexNavbar from "components/Navbars/IndexNavbar.jsx";
+import SimpleFooter from "components/Footers/SimpleFooter.jsx";
 
 class IniciarSesion extends React.Component {
   constructor(props) {
@@ -105,7 +106,7 @@ class IniciarSesion extends React.Component {
   render() {
     return (
       <>
-        <DemoNavbar />
+        <IndexNavbar />
         <main ref="main">
           <section className="section section-shaped section-lg">
             <div className="shape shape-style-1 bg-gradient-default">
@@ -196,6 +197,7 @@ class IniciarSesion extends React.Component {
               </Row>
             </Container>
           </section>
+          <SimpleFooter />
         </main>
       </>
     );

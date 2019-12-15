@@ -219,9 +219,9 @@ class Productos extends React.Component {
                   <Row className="justify-content-center">
                     <Col lg="12">
                       <Row className="row-grid">
-                        {this.state.losProductos.map(producto => {
+                        {this.state.losProductos.map((producto, i) => {
                           return (
-                            <Col lg="4">
+                            <Col lg="4" key={i}>
                               <Card
                                 className="card-lift--hover shadow border-0 mb-4"
                                 onClick={() => {
