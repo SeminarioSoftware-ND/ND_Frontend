@@ -80,7 +80,11 @@ class IniciarSesion extends React.Component {
         localStorage.setItem("usuarioCorreo", respuesta.data.email);
         localStorage.setItem("usuarioNombre", respuesta.data.usuario);
         // Redireccionamos
-        window.location = "/";
+        if (respuesta.data.admin === 0) {
+          window.location = "/admin";
+        } else {
+          window.location = "/";
+        }
       } else {
         // Mostramos mensaje de error
         Swal.fire("Error", respuesta.data.mensaje, "success");

@@ -162,6 +162,15 @@ class IndexNavbar extends React.Component {
                     </DropdownMenu>
                   </UncontrolledDropdown>
                   {/* /Pedidos */}
+
+                  {/* Inicio */}
+                  <UncontrolledDropdown nav>
+                    <DropdownToggle nav to="/impresiones" tag={Link}>
+                      <i className="ni ni-shop d-lg-none mr-1" />
+                      <span className="nav-link-inner--text">Impresiones</span>
+                    </DropdownToggle>
+                  </UncontrolledDropdown>
+                  {/* /Inicio */}
                 </Nav>
 
                 <Nav

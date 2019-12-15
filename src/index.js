@@ -41,6 +41,7 @@ import Contacto from "views/contacto.jsx";
 import Acerca from "views/acerca.jsx";
 import Orden from "views/orden.jsx";
 import Salir from "components/salir.jsx";
+import Impresiones from "views/impresiones.jsx";
 
 ReactDOM.render(
   <BrowserRouter>
@@ -68,11 +69,13 @@ ReactDOM.render(
       />
 
       <Route path="/ordenCompra" exact render={props => <Orden {...props} />} />
-
-      {/* /TIENDA */}
-
       <Route path="/contacto" exact render={props => <Contacto {...props} />} />
       <Route path="/acercade" exact render={props => <Acerca {...props} />} />
+      <Route
+        path="/impresiones"
+        exact
+        render={props => <Impresiones {...props} />}
+      />
 
       {/* DASHBOARD / ADMIN */}
       <Route path="/admin" exact render={props => <IndexDash {...props} />} />
