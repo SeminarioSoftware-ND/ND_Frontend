@@ -33,6 +33,7 @@ import {
   Modal
 } from "reactstrap";
 
+var noFunciona = [];
 class Productos extends React.Component {
   constructor(props) {
     super(props);
@@ -71,6 +72,7 @@ class Productos extends React.Component {
       })
       .then(response => {
         this.setState({ losProductos: response.data });
+        localStorage.setItem(`losProductos`, JSON.stringify(response.data));
       })
       .catch(error => {
         console.log(error.response.data.error);
@@ -79,7 +81,10 @@ class Productos extends React.Component {
     // LLenamos el carrito con los elementos que se agregó con LocalStorage
     this.setState({ cart: JSON.parse(localStorage.getItem("products")) });
 
-    console.log({ cart: JSON.parse(localStorage.getItem("products")) });
+    // Llamos a la función de cargar las imágenes de un producto
+    {
+      this.cargarImagen(JSON.parse(localStorage.getItem("losProductos")));
+    }
   }
 
   // Evento para atrapar el cambio en los inputs
@@ -93,36 +98,44 @@ class Productos extends React.Component {
   }
 
   // Método para cargar la Imagen
-  cargarImagen(nombreImagen) {
-    axiosConfig
-      .get("/imagenProducto", {
-        params: {
-          url: nombreImagen
-        },
-        responseType: "arraybuffer"
-      })
-      .then(respuesta => {
-        // Convertir imagen para mostrarla en el modal
-        const base64 = btoa(
-          new Uint8Array(respuesta.data).reduce(
-            (data, byte) => data + String.fromCharCode(byte),
-            ""
-          )
-        );
-        this.setState({ source: "data:;base64," + base64 });
-      });
+  cargarImagen(elProducto) {
+    var lasImagenes = [];
+    var a = 0;
+    elProducto.forEach(producto => {
+      axiosConfig
+        .get("/imagenProducto", {
+          params: {
+            url: producto.imagen
+          },
+          responseType: "arraybuffer"
+        })
+        .then(respuesta => {
+          // Convertir imagen para mostrarla en el modal
+          const base64 = btoa(
+            new Uint8Array(respuesta.data).reduce(
+              (data, byte) => data + String.fromCharCode(byte),
+              ""
+            )
+          );
+
+          lasImagenes.push("data:;base64," + base64);
+          localStorage.setItem(`lasImagenes`, JSON.stringify(lasImagenes));
+        });
+      lasImagenes = [];
+    });
+    noFunciona = JSON.parse(localStorage.getItem("lasImagenes"));
   }
 
   // Método para cargar los datos al modal
-  cargarDatos(losDatos) {
+  cargarDatos(losDatos, laImagen) {
     this.setState({
       id: losDatos._id,
       nombre: losDatos.nombre,
       descripcion: losDatos.descripcion,
       precio: losDatos.precio,
-      imagen: losDatos.imagen
+      imagen: laImagen
     });
-    this.cargarImagen(this.state.imagen);
+    // this.cargarImagen(this.state.imagen);
   }
 
   // Método para agregar un producto seleccionado al LocalStorage
@@ -222,16 +235,11 @@ class Productos extends React.Component {
                         {this.state.losProductos.map((producto, i) => {
                           return (
                             <Col lg="4" key={i}>
-                              <Card
-                                className="card-lift--hover shadow border-0 mb-4"
-                                onClick={() => {
-                                  this.cargarImagen(producto.imagen);
-                                }}
-                              >
+                              <Card className="card-lift--hover shadow border-0 mb-4">
                                 <CardImg
                                   top
                                   width="100%"
-                                  src={this.state.source}
+                                  src={noFunciona[i]}
                                   alt="Imagen producto"
                                 />
                                 <CardImgOverlay className="align-items-between">
@@ -255,7 +263,7 @@ class Productos extends React.Component {
                                     size="sm"
                                     onClick={() => {
                                       this.toggleModal("mostrarProductoModal");
-                                      this.cargarDatos(producto);
+                                      this.cargarDatos(producto, noFunciona[i]);
                                     }}
                                   >
                                     <span className="btn-inner--icon">
@@ -319,7 +327,7 @@ class Productos extends React.Component {
                       <img
                         className="center-block"
                         alt="..."
-                        src={this.state.source}
+                        src={this.state.imagen}
                         style={{ width: "300px" }}
                       />
                     </div>
