@@ -161,6 +161,10 @@ class Productos extends React.Component {
 
   // Método para agregar un producto seleccionado al LocalStorage desde el modal
   agregarACarritoModal(id, nombre, precio, cantidad) {
+    console.log(cantidad);
+    if (cantidad === null || cantidad === undefined) {
+      cantidad = 1;
+    }
     let products = [];
     if (localStorage.getItem("products")) {
       products = JSON.parse(localStorage.getItem("products"));
@@ -183,7 +187,7 @@ class Productos extends React.Component {
 
     // Mensaje de confirmación
     Swal.fire("¡Agregado!", "Producto agregado al carrito", "success");
-    window.location = "/";
+    window.location = `/producto/${this.state.laUrl.url}`;
   }
 
   // Evento para desplegar los modales
@@ -360,7 +364,6 @@ class Productos extends React.Component {
                           <Input
                             id="cantidadPro"
                             type="number"
-                            placeholder="0"
                             step="1"
                             min="1"
                             pattern="^[0-9]"
