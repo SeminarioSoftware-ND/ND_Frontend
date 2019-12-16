@@ -163,7 +163,6 @@ class Productos extends React.Component {
 
     // Agregamos el arreglo al Local Storage
     localStorage.setItem(`products`, JSON.stringify(products));
-    console.log("agregado");
 
     // Mensaje de confirmación
     Swal.fire("¡Agregado!", "Producto agregado al carrito", "success");

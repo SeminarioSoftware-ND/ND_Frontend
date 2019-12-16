@@ -39,7 +39,6 @@ class VerOrden extends React.Component {
 
     // Cargamos los productos del carrito al LocalStorage
     this.setState({ cart: JSON.parse(localStorage.getItem("products")) });
-    console.log({ cart: JSON.parse(localStorage.getItem("products")) });
 
     // Calculamos el Total de la orden
     {
@@ -163,7 +162,26 @@ class VerOrden extends React.Component {
           if (respuesta.status === 200) {
             Swal.fire("Compra Realizada", respuesta.data.mensaje, "success");
             localStorage.removeItem("products");
-            window.location = "/";
+
+            // Petición para enviar la factura
+            axiosConfig
+              .post("/enviarCorreo", datos)
+              .then(respuesta2 => {
+                if (respuesta2.status === 200) {
+                  console.log("Factura enviada");
+                  Swal.fire(
+                    "¡Revisa tu correo!",
+                    respuesta2.data.mensaje,
+                    "success"
+                  );
+                  window.location = "/";
+                } else {
+                  Swal.fire("¡Alerta!", respuesta2.data.mensaje, "warning");
+                }
+              })
+              .catch(error => {
+                Swal.fire("Error", error.response.data.error, "warning");
+              });
           } else {
             Swal.fire("Error", respuesta.response.data.mensaje, "warning");
           }
