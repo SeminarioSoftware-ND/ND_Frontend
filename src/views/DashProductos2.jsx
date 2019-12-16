@@ -19,15 +19,12 @@ import {
   Form,
   FormGroup,
   InputGroup,
-  InputGroupAddon,
-  InputGroupText,
   Input,
   Button,
   Modal,
   Label,
   Card,
-  CardBody,
-  CardFooter
+  CardBody
 } from "reactstrap";
 
 class DashProductos extends React.Component {
@@ -84,7 +81,6 @@ class DashProductos extends React.Component {
       .then(response => {
         // Modificamos el estado del arreglo TableData para llenarlo con la consulta
         this.setState({ TableData: response.data });
-        console.log(response.data);
       });
 
     // Petición para cargar las categorias para select
@@ -93,7 +89,6 @@ class DashProductos extends React.Component {
       .then(respuesta => {
         if (respuesta.status === 200) {
           this.setState({ lasCategorias: respuesta.data });
-          console.log(this.state.lasCategorias);
         } else {
           Swal.fire("¡Alerta!", respuesta.response.data.mensaje, "warning");
         }
@@ -445,7 +440,6 @@ class DashProductos extends React.Component {
   }
 
   render() {
-    const { selectedOption } = this.state;
     // Obtenemos por destructuring el arreglo con los datos
     const { TableData } = this.state;
     // Establecemos las columnas de nuestra tabla

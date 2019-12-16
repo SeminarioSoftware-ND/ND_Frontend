@@ -24,9 +24,9 @@ class ExportToExcel extends Component {
             </tr>
           </thead>
           <tbody>
-            {this.props.TableData.map(post => {
+            {this.props.TableData.map((post, i) => {
               return (
-                <tr key={post.id}>
+                <tr key={i}>
                   <td>{post.nombre}</td>
                   <td>{post.descripcion}</td>
                   <td>{post.categoria.nombre}</td>

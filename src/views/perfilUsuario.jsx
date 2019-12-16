@@ -1,5 +1,4 @@
 import React from "react";
-import { Link } from "react-router-dom";
 import axiosConfig from "../axios";
 import Swal from "sweetalert2";
 
@@ -185,7 +184,7 @@ class perfilUsuario extends React.Component {
                   <Row className="justify-content-center">
                     <Col className="order-lg-2" lg="3">
                       <div className="card-profile-image">
-                        <a>
+                        <a href="https://google.com">
                           {/* IMAGEN */}
                           <img
                             alt="..."

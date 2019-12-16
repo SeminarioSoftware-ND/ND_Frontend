@@ -4,10 +4,6 @@ import axiosConfig from "../axios";
 import Swal from "sweetalert2";
 
 class Salir extends Component {
-  constructor() {
-    super();
-  }
-
   render() {
     axiosConfig.get("/cerrarSesion").then(respuesta => {
       if (respuesta.status === 200) {

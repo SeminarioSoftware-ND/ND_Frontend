@@ -145,7 +145,6 @@ class IndexDash extends React.Component {
 
   render() {
     // variable para recorrer el arreglo con los datos
-    var a = -1;
     // Obtenemos por destructurig el arreglo con los datos
     const { TableData } = this.state;
     // Establecemos las columnas de nuestra tabla

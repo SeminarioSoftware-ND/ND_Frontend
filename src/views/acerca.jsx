@@ -1,15 +1,7 @@
 import React from "react";
 
 // reactstrap components
-import {
-  Card,
-  CardBody,
-  Container,
-  Row,
-  Col,
-  CardImg,
-  Badge
-} from "reactstrap";
+import { Container, Row, Col, Badge } from "reactstrap";
 
 // Componentes
 import IndexNavbar from "components/Navbars/IndexNavbar.jsx";

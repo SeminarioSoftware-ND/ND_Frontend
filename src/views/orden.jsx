@@ -1,5 +1,4 @@
 import React from "react";
-import { Route, Redirect } from "react-router-dom";
 import axiosConfig from "../axios";
 import Swal from "sweetalert2";
 import ReactTable from "react-table-v6";
@@ -345,12 +344,12 @@ class VerOrden extends React.Component {
                   <Row className="justify-content-center">
                     <Col className="order-lg-2" lg="3">
                       <div className="card-profile-image">
-                        <a>
+                        <a href="#">
                           {/* IMAGEN */}
                           <img
                             alt="..."
                             className="rounded-circle"
-                            src={require("assets/img/theme/team-4-800x800.jpg")}
+                            src={require("assets/img/shopping_cart.png")}
                           />
                         </a>
                       </div>
@@ -368,7 +367,7 @@ class VerOrden extends React.Component {
                   {/* Información actual */}
                   <div className="text-center mt-5">
                     <h2>
-                      El nombre del cliente
+                      Pedido
                       <span className="font-weight-light"></span>
                     </h2>
 

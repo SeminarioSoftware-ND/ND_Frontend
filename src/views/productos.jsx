@@ -1,9 +1,7 @@
 import React from "react";
 import axiosConfig from "../axios";
 import Swal from "sweetalert2";
-
-// nodejs library that concatenates classes
-import classnames from "classnames";
+import { Link } from "react-router-dom";
 
 import IndexNavbar from "components/Navbars/IndexNavbar.jsx";
 import DashHero from "./IndexSections/DashHero.jsx";
@@ -11,24 +9,15 @@ import SimpleFooter from "components/Footers/SimpleFooter.jsx";
 
 // reactstrap components
 import {
-  Badge,
   Button,
   Card,
   CardBody,
   CardImg,
   CardImgOverlay,
-  NavItem,
-  NavLink,
-  Nav,
-  TabContent,
-  TabPane,
   Row,
   Col,
   Container,
-  FormGroup,
   Input,
-  InputGroupAddon,
-  InputGroupText,
   InputGroup,
   Modal
 } from "reactstrap";
@@ -45,7 +34,8 @@ class Productos extends React.Component {
       descripcion: "",
       imagen: "",
       precio: "",
-      cart: []
+      cart: [],
+      laUrl: ""
     };
     this.agregarACarrito = this.agregarACarrito.bind(this);
     this.cargarImagen = this.cargarImagen.bind(this);
@@ -61,7 +51,7 @@ class Productos extends React.Component {
 
     // Obtenemos la url que viene del indexNavbar
     const { url } = this.props.match.params;
-    const { fromNotification } = this.props.location.state;
+    this.setState({ laUrl: this.props.match.params });
 
     // Petición para cargar los productos
     axiosConfig
@@ -100,7 +90,6 @@ class Productos extends React.Component {
   // Método para cargar la Imagen
   cargarImagen(elProducto) {
     var lasImagenes = [];
-    var a = 0;
     elProducto.forEach(producto => {
       axiosConfig
         .get("/imagenProducto", {
@@ -166,6 +155,8 @@ class Productos extends React.Component {
 
     // Mensaje de confirmación
     Swal.fire("¡Agregado!", "Producto agregado al carrito", "success");
+
+    window.location = `/producto/${this.state.laUrl.url}`;
   }
 
   // Método para agregar un producto seleccionado al LocalStorage desde el modal
@@ -192,6 +183,7 @@ class Productos extends React.Component {
 
     // Mensaje de confirmación
     Swal.fire("¡Agregado!", "Producto agregado al carrito", "success");
+    window.location = "/";
   }
 
   // Evento para desplegar los modales
@@ -240,6 +232,7 @@ class Productos extends React.Component {
                                   width="100%"
                                   src={noFunciona[i]}
                                   alt="Imagen producto"
+                                  style={{ width: "300px", height: "300px" }}
                                 />
                                 <CardImgOverlay className="align-items-between">
                                   <Button
@@ -402,7 +395,13 @@ class Productos extends React.Component {
                     {/* Ir a carrito */}
                     <Row className="mt-3 ml-1 mb-4">
                       <Col sm={12}>
-                        <Button color="default" type="button" block>
+                        <Button
+                          color="default"
+                          type="button"
+                          block
+                          to="/ordenCompra"
+                          tag={Link}
+                        >
                           <span className="btn-inner--icon mr-1">
                             <i className="ni ni-cart" />
                           </span>

@@ -51,8 +51,6 @@ class IndexNavbar extends React.Component {
       cart: JSON.parse(localStorage.getItem("products")),
       nombreUsuario: localStorage.getItem("usuarioNombre")
     });
-
-    console.log(this.state.nombreUsuario);
   }
 
   acceso() {
@@ -74,10 +72,7 @@ class IndexNavbar extends React.Component {
           >
             <Container>
               <NavbarBrand className="mr-lg-5" to="/" tag={Link}>
-                <img
-                  alt="..."
-                  src={require("assets/img/brand/argon-react-white.png")}
-                />
+                <img alt="..." src={require("assets/img/descarga.png")} />
               </NavbarBrand>
               <button className="navbar-toggler" id="navbar_global">
                 <span className="navbar-toggler-icon" />
@@ -187,10 +182,6 @@ class IndexNavbar extends React.Component {
                     </DropdownToggle>
 
                     <DropdownMenu>
-                      <DropdownItem to="/usuarioPerfil" tag={Link}>
-                        <i className="ni ni-single-copy-04 d-lg-none mr-1" />
-                        <span className="nav-link-inner--text">Perfil</span>
-                      </DropdownItem>
                       <DropdownItem to="/salir" tag={Link}>
                         <i className="ni ni-single-copy-04 d-lg-none mr-1" />
                         <span className="nav-link-inner--text">Salir</span>
@@ -246,11 +237,6 @@ class IndexNavbar extends React.Component {
                                 tag={Link}
                               >
                                 Ver orden
-                              </Button>
-                            </Col>
-                            <Col sm={12} className="mt-2 mb-md-1">
-                              <Button color="success" block>
-                                Confirmar
                               </Button>
                             </Col>
                           </div>

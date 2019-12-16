@@ -1,11 +1,10 @@
 import React from "react";
 
 // reactstrap components
-import { Button, Container, Row, Col } from "reactstrap";
+import { Container, Row, Col } from "reactstrap";
 
 class DashHero extends React.Component {
   render() {
-    const laImagen = this.props.imagen;
     return (
       <>
         <div className="position-relative">

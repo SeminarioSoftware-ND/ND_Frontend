@@ -182,12 +182,7 @@ class IniciarSesion extends React.Component {
                   </Card>
 
                   <Row className="mt-3">
-                    <Col className="text-light" xs="6">
-                      <Link to="/">
-                        <small>Olvidé mi contraseña</small>
-                      </Link>
-                    </Col>
-                    <Col className="text-right text-light" xs="6">
+                    <Col className="text-right text-light" xs="12">
                       <Link to="/crearCuenta">
                         <small>Crear cuenta</small>
                       </Link>

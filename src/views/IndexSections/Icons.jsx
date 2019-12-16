@@ -18,7 +18,7 @@
 import React from "react";
 
 // reactstrap components
-import { Button, Container, Row, Col } from "reactstrap";
+import { Container, Row, Col } from "reactstrap";
 
 class Icons extends React.Component {
   render() {
@@ -28,33 +28,15 @@ class Icons extends React.Component {
           <Container>
             <Row className="justify-content-center">
               <Col className="text-center" lg="8">
-                <h2 className="display-3">Nucleo Icons</h2>
+                <h2 className="display-3">Productos</h2>
                 <p className="lead">
-                  The official package contains over 21.000 icons which are
-                  looking great in combination with Argon Design System. Make
-                  sure you check all of them and use those that you like the
-                  most.
+                  Nuestra tienda cuenta con más de 2000 artículos de muchas
+                  variedades.
                 </p>
-                <div className="btn-wrapper">
-                  <Button
-                    color="primary"
-                    href="https://demos.creative-tim.com/argon-design-system-react/#/documentation/icons?ref=adsr-landing-page"
-                  >
-                    View demo icons
-                  </Button>
-                  <Button
-                    className="mt-3 mt-md-0"
-                    color="default"
-                    href="https://nucleoapp.com/?ref=1712"
-                    target="_blank"
-                  >
-                    View all icons
-                  </Button>
-                </div>
               </Col>
             </Row>
             <div className="blur--hover">
-              <a href="https://demos.creative-tim.com/argon-design-system-react/#/documentation/icons?ref=adsr-landing-page">
+              <a href="#">
                 <div className="icons-container blur-item mt-5 on-screen">
                   <i className="icon ni ni-diamond" />
                   <i className="icon icon-sm ni ni-album-2" />
@@ -71,7 +53,7 @@ class Icons extends React.Component {
                   <i className="icon ni ni-chart-bar-32" />
                 </div>
                 <span className="blur-hidden h5 text-success">
-                  Eplore all the 21.000+ Nucleo Icons
+                  +2000 artículos
                 </span>
               </a>
             </div>
